@@ -12,7 +12,7 @@ import { ReactNode } from "react";
 
 export default function App() {
   return (
-    <Router>
+    <Router basename="/Digitalizedemo">
       <ScrollToTop />
       <div className="min-h-screen flex flex-col">
         <Navbar />
