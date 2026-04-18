@@ -47,14 +47,12 @@ async function deploy() {
     });
     console.log('✅ З\'єднано');
 
-    // Завантажуємо PHP файли теми (тільки якщо змінилися)
-    const themeFiles = ['style.css', 'index.php', 'functions.php'];
-    for (const file of themeFiles) {
-      const local = path.join(__dirname, 'wp-theme', file);
-      if (fs.existsSync(local)) {
-        await client.uploadFrom(local, `${CONFIG.remotePath}/${file}`);
-        console.log(`📄 ${file}`);
-      }
+    // Завантажуємо всі PHP файли теми
+    const themeDir = path.join(__dirname, 'wp-theme');
+    const phpFiles = fs.readdirSync(themeDir).filter(f => f.endsWith('.php') || f.endsWith('.css'));
+    for (const file of phpFiles) {
+      await client.uploadFrom(path.join(themeDir, file), `${CONFIG.remotePath}/${file}`);
+      console.log(`📄 ${file}`);
     }
 
     // Завантажуємо dist/ (збірку React)
