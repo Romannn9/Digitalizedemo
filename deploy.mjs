@@ -10,7 +10,7 @@ const CONFIG = {
   port:     Number(process.env.FTP_PORT) || 21,
   user:     process.env.FTP_USER     || 'ze617275_wprazrab',
   password: process.env.FTP_PASS     || '',
-  remotePath: process.env.FTP_REMOTE || '/public_html/wp-content/themes/digitalize',
+  remotePath: process.env.FTP_REMOTE || '/digitalize.com.ua/www/wp-content/themes/digitalize',
 };
 
 async function deploy() {
@@ -34,6 +34,7 @@ async function deploy() {
 
   const client = new ftp.Client();
   client.ftp.verbose = false;
+  client.ftp.socket.setKeepAlive(true);
 
   try {
     console.log(`🔌 Підключаємось до ${CONFIG.host}...`);
