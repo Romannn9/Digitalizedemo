@@ -21,11 +21,16 @@ declare global {
       title: string;
       content: string;
       excerpt: string;
+      date?: string;
+      author?: string;
+      image?: string;
+      categories?: string[];
     } | null;
     wpSite?: {
       name: string;
       url: string;
       apiUrl: string;
     };
+    wpFooter?: Record<string, any>;
   }
 }

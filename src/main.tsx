@@ -9,21 +9,14 @@ import Services from './pages/Services';
 import About from './pages/About';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
+import Post from './pages/Post';
+import Page from './pages/Page';
+import NotFound from './pages/NotFound';
 
 const rootEl = document.getElementById('root')!;
 
-function pageFromUrl(): string {
-  const slug = window.location.pathname.replace(/^\/|\/$/g, '').split('/').pop() ?? '';
-  const map: Record<string, string> = {
-    '': 'home', 'home': 'home',
-    'cases': 'cases', 'services': 'services',
-    'about': 'about', 'blog': 'blog', 'contact': 'contact',
-  };
-  return map[slug] ?? 'home';
-}
-
 const isWP = import.meta.env.MODE === 'wp';
-const page = isWP ? pageFromUrl() : (rootEl.dataset.page ?? 'home');
+const page = rootEl.dataset.page ?? 'home';
 
 const pages: Record<string, React.ReactElement> = {
   home:     <Home />,
@@ -32,12 +25,15 @@ const pages: Record<string, React.ReactElement> = {
   about:    <About />,
   blog:     <Blog />,
   contact:  <Contact />,
+  post:     <Post />,
+  page:     <Page />,
+  '404':    <NotFound />,
 };
 
 createRoot(rootEl).render(
   <StrictMode>
     <Layout>
-      {pages[page] ?? <Home />}
+      {pages[page] ?? <NotFound />}
     </Layout>
   </StrictMode>
 );

@@ -32,12 +32,17 @@ function digitalize_enqueue_scripts() {
     global $post;
     $page_data = null;
     if ($post) {
+        $categories = wp_get_post_categories($post->ID, ['fields' => 'names']);
         $page_data = [
-            'id'      => $post->ID,
-            'slug'    => $post->post_name,
-            'title'   => get_the_title($post->ID),
-            'content' => apply_filters('the_content', $post->post_content),
-            'excerpt' => get_the_excerpt($post),
+            'id'         => $post->ID,
+            'slug'       => $post->post_name,
+            'title'      => get_the_title($post->ID),
+            'content'    => apply_filters('the_content', $post->post_content),
+            'excerpt'    => get_the_excerpt($post),
+            'date'       => get_the_date('c', $post->ID),
+            'author'     => get_the_author_meta('display_name', $post->post_author),
+            'image'      => get_the_post_thumbnail_url($post->ID, 'large') ?: '',
+            'categories' => $categories,
         ];
     }
     wp_localize_script('digitalize-app', 'wpPage', $page_data);
@@ -69,8 +74,22 @@ function digitalize_enqueue_scripts() {
 
     $acf_data = function_exists('get_fields') ? (get_fields() ?: []) : [];
     wp_localize_script('digitalize-app', 'wpAcf', $acf_data);
+
+    $footer_opts = function_exists('get_fields') ? (get_fields('option') ?: []) : [];
+    wp_localize_script('digitalize-app', 'wpFooter', $footer_opts);
 }
 add_action('wp_enqueue_scripts', 'digitalize_enqueue_scripts');
+
+// ACF Options Page
+if (function_exists('acf_add_options_page')) {
+    acf_add_options_page([
+        'page_title' => 'Налаштування сайту',
+        'menu_title' => 'Налаштування сайту',
+        'menu_slug'  => 'site-settings',
+        'capability' => 'manage_options',
+        'icon_url'   => 'dashicons-admin-settings',
+    ]);
+}
 
 // ACF field definitions
 foreach (glob(get_template_directory() . '/acf/*.php') as $acf_file) {

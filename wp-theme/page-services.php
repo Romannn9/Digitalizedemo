@@ -1,3 +1,5 @@
-<?php get_header(); ?>
+<?php
+/* Template Name: Services */
+get_header(); ?>
 <div id="root" data-page="services"></div>
 <?php get_footer(); ?>
