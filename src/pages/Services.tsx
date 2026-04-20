@@ -159,15 +159,15 @@ export default function Services() {
             <h2 className="text-4xl font-bold mb-6">{f('srv_pkg_title', 'ПАКЕТИ ПОСЛУГ')}</h2>
             <p className="text-xl text-gray-600">{f('srv_pkg_subtitle', 'Оберіть оптимальний варіант для вашого бізнесу.')}</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6">
             {packages.map((pkg: any, i: number) => {
               const isPopular = pkg.popular === true || pkg.popular === '1' || pkg.popular === 1;
               const features = typeof pkg.features === 'string'
                 ? pkg.features.split('\n').filter(Boolean)
                 : (pkg.features ?? []);
               return (
-                <Card key={i} className={`p-10 rounded-none border-2 transition-all relative ${isPopular ? 'border-primary shadow-2xl scale-105 z-10' : 'border-gray-100'}`}>
-                  {isPopular && <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-white px-4 py-1 text-xs font-bold uppercase tracking-widest">Популярний</span>}
+                <Card key={i} className={`p-10 rounded-none border-2 transition-all relative overflow-visible ${isPopular ? 'border-primary shadow-2xl scale-105 z-10' : 'border-gray-100'}`}>
+                  {isPopular && <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white px-4 py-1 text-xs font-bold uppercase tracking-widest whitespace-nowrap">Популярний</span>}
                   <h3 className="text-2xl font-bold mb-2 text-center">{pkg.name}</h3>
                   <p className="text-4xl font-bold text-primary text-center mb-8">{pkg.price}</p>
                   <ul className="space-y-4 mb-10">

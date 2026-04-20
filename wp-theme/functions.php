@@ -96,8 +96,9 @@ foreach (glob(get_template_directory() . '/acf/*.php') as $acf_file) {
     require_once $acf_file;
 }
 
-// Підтримка меню
+// Підтримка меню та featured image
 add_theme_support('menus');
+add_theme_support('post-thumbnails');
 register_nav_menus([
     'primary' => 'Main Menu',
     'footer'  => 'Footer Menu',
