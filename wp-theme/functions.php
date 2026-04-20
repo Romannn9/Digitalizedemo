@@ -46,12 +46,48 @@ function digitalize_enqueue_scripts() {
         'url'    => home_url('/'),
         'apiUrl' => rest_url(),
     ]);
+
+    $locations = get_nav_menu_locations();
+
+    $build_menu = function ($location_id) use ($locations) {
+        $menu_id   = $locations[$location_id] ?? null;
+        $raw_items = $menu_id ? (wp_get_nav_menu_items($menu_id) ?: []) : [];
+        return array_values(array_map(function ($item) {
+            return [
+                'id'    => $item->ID,
+                'name'  => html_entity_decode($item->title, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+                'href'  => $item->url,
+                'order' => $item->menu_order,
+            ];
+        }, array_filter($raw_items, function ($item) {
+            return (int) $item->menu_item_parent === 0;
+        })));
+    };
+
+    wp_localize_script('digitalize-app', 'wpMenu',       $build_menu('primary'));
+    wp_localize_script('digitalize-app', 'wpFooterMenu', $build_menu('footer'));
+
+    $acf_data = function_exists('get_fields') ? (get_fields() ?: []) : [];
+    wp_localize_script('digitalize-app', 'wpAcf', $acf_data);
 }
 add_action('wp_enqueue_scripts', 'digitalize_enqueue_scripts');
 
+// ACF field definitions
+foreach (glob(get_template_directory() . '/acf/*.php') as $acf_file) {
+    require_once $acf_file;
+}
+
 // Підтримка меню
 add_theme_support('menus');
-register_nav_menus(['primary' => 'Main Menu']);
+register_nav_menus([
+    'primary' => 'Main Menu',
+    'footer'  => 'Footer Menu',
+]);
+
+// Прибираємо редактор зі сторінок
+add_action('init', function () {
+    remove_post_type_support('page', 'editor');
+});
 
 // Прибираємо зайве
 remove_action('wp_head', 'print_emoji_detection_script', 7);

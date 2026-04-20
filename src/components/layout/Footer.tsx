@@ -1,3 +1,16 @@
+const fallbackFooterLinks = [
+  { name: "Головна",  href: "/" },
+  { name: "Кейси",    href: "/cases/" },
+  { name: "Послуги",  href: "/services/" },
+  { name: "Про нас",  href: "/about/" },
+  { name: "Блог",     href: "/blog/" },
+];
+
+const footerLinks =
+  typeof window !== 'undefined' && window.wpFooterMenu?.length
+    ? window.wpFooterMenu.map(({ name, href }) => ({ name, href }))
+    : fallbackFooterLinks;
+
 export default function Footer() {
   return (
     <footer className="bg-brand-black text-white py-20 border-t border-white/10">
@@ -19,11 +32,11 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-bold mb-6">Навігація</h4>
             <ul className="space-y-4 text-gray-400">
-              <li><a href="/" className="hover:text-primary transition-colors">Головна</a></li>
-              <li><a href="/cases/" className="hover:text-primary transition-colors">Кейси</a></li>
-              <li><a href="/services/" className="hover:text-primary transition-colors">Послуги</a></li>
-              <li><a href="/about/" className="hover:text-primary transition-colors">Про нас</a></li>
-              <li><a href="/blog/" className="hover:text-primary transition-colors">Блог</a></li>
+              {footerLinks.map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} className="hover:text-primary transition-colors">{link.name}</a>
+                </li>
+              ))}
             </ul>
           </div>
 

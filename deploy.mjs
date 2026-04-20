@@ -47,13 +47,24 @@ async function deploy() {
     });
     console.log('✅ З\'єднано');
 
-    // Завантажуємо всі PHP файли теми
+    // Завантажуємо всі PHP/CSS файли теми (включно з підпапками)
     const themeDir = path.join(__dirname, 'wp-theme');
-    const phpFiles = fs.readdirSync(themeDir).filter(f => f.endsWith('.php') || f.endsWith('.css'));
-    for (const file of phpFiles) {
-      await client.uploadFrom(path.join(themeDir, file), `${CONFIG.remotePath}/${file}`);
-      console.log(`📄 ${file}`);
+    async function uploadDir(localDir, remoteDir) {
+      const entries = fs.readdirSync(localDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name === 'dist') continue;
+        const localPath  = path.join(localDir, entry.name);
+        const remotePath = `${remoteDir}/${entry.name}`;
+        if (entry.isDirectory()) {
+          await client.ensureDir(remotePath);
+          await uploadDir(localPath, remotePath);
+        } else if (entry.name.endsWith('.php') || entry.name.endsWith('.css')) {
+          await client.uploadFrom(localPath, remotePath);
+          console.log(`📄 ${remotePath.replace(CONFIG.remotePath, '')}`);
+        }
+      }
     }
+    await uploadDir(themeDir, CONFIG.remotePath);
 
     // Завантажуємо dist/ (збірку React)
     const distPath = path.join(__dirname, 'wp-theme', 'dist');

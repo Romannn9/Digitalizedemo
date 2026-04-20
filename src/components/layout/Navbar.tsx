@@ -3,13 +3,18 @@ import { motion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
-const navLinks = [
+const fallbackLinks = [
   { name: "Головна",  href: "/" },
   { name: "Кейси",    href: "/cases/" },
   { name: "Послуги",  href: "/services/" },
   { name: "Про нас",  href: "/about/" },
   { name: "Блог",     href: "/blog/" },
 ];
+
+const navLinks =
+  typeof window !== 'undefined' && window.wpMenu?.length
+    ? window.wpMenu.map(({ name, href }) => ({ name, href }))
+    : fallbackLinks;
 
 const currentPage = typeof document !== 'undefined'
   ? (document.getElementById('root')?.dataset.page ?? 'home')
