@@ -1,7 +1,7 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, TrendingUp, DollarSign, CheckCircle, PlayCircle } from "lucide-react";
 
 const acf = typeof window !== 'undefined' ? (window.wpAcf ?? {}) : {};
@@ -9,6 +9,7 @@ const f   = (key: string, fb: any) => { const v = acf[key]; return (v !== undefi
 const rep = (key: string, fb: any[]) => { const v = acf[key]; return (Array.isArray(v) && v.length > 0) ? v : fb; };
 
 export default function Cases() {
+  const [activeFilter, setActiveFilter] = useState('all');
   const h1Line1      = f('cases_h1_line1',    'НАШІ КЕЙСИ:');
   const h1Accent     = f('cases_h1_accent',   'РЕАЛЬНІ ЦИФРИ');
   const headerDesc   = f('cases_header_desc', 'Ми не просто показуємо красиві картинки. Ми показуємо, як наші стратегії впливають на банківський рахунок клієнта.');
@@ -85,48 +86,79 @@ export default function Cases() {
       </section>
 
       {/* 2. Filter */}
-      <section className="py-12 bg-white border-b border-gray-100 sticky top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Tabs defaultValue="all" className="w-full">
-            <TabsList className="bg-transparent h-auto p-0 flex flex-wrap gap-4">
-              {['all', 'Target', 'Context', 'SMM', 'SEO'].map((tab) => (
-                <TabsTrigger key={tab} value={tab} className="px-8 py-3 rounded-none border border-gray-200 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary transition-all">
-                  {tab === 'all' ? 'Всі проєкти' : tab}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-      </section>
+      {(() => {
+        const categories = ['all', ...Array.from(new Set(casesItems.map((c: any) => c.category).filter(Boolean)))];
+        const filtered = activeFilter === 'all' ? casesItems : casesItems.filter((c: any) => c.category === activeFilter);
+        return (
+          <>
+            <section className="py-8 bg-white border-b border-gray-100 sticky top-20 z-40">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-wrap gap-3">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveFilter(cat)}
+                      className={`px-6 py-2.5 text-sm font-bold uppercase tracking-wider border transition-all ${
+                        activeFilter === cat
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-white text-brand-black border-gray-200 hover:border-primary hover:text-primary'
+                      }`}
+                    >
+                      {cat === 'all' ? 'Всі проєкти' : cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
 
-      {/* 3. Cases Grid */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-            {casesItems.map((item: any, i: number) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="group cursor-pointer">
-                <div className="relative overflow-hidden mb-8 aspect-[4/3]">
-                  <img src={item.image} alt={item.title} className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" referrerPolicy="no-referrer" />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                    <div className="flex justify-between text-white">
-                      <div className="text-center"><p className="text-xs uppercase opacity-60">ROI</p><p className="text-xl font-bold">{item.roi}</p></div>
-                      <div className="text-center"><p className="text-xs uppercase opacity-60">CPA</p><p className="text-xl font-bold">{item.cpa}</p></div>
-                      <div className="text-center"><p className="text-xs uppercase opacity-60">ROAS</p><p className="text-xl font-bold">{item.roas}</p></div>
-                    </div>
+            {/* 3. Cases Grid */}
+            <section className="py-24 bg-white">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {filtered.length === 0 ? (
+                  <p className="text-center text-gray-400 py-20 text-xl">Немає кейсів у цій категорії.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                    <AnimatePresence mode="popLayout">
+                      {filtered.map((item: any, i: number) => (
+                        <motion.div
+                          key={item.title + item.category}
+                          layout
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.3, delay: i * 0.05 }}
+                          className="group cursor-pointer"
+                        >
+                          <div className="relative overflow-hidden mb-8 aspect-[4/3]">
+                            {item.image
+                              ? <img src={item.image} alt={item.title} className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" />
+                              : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300 text-6xl font-bold">D</div>
+                            }
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                              <div className="flex justify-between text-white">
+                                <div className="text-center"><p className="text-xs uppercase opacity-60">ROI</p><p className="text-xl font-bold">{item.roi}</p></div>
+                                <div className="text-center"><p className="text-xs uppercase opacity-60">CPA</p><p className="text-xl font-bold">{item.cpa}</p></div>
+                                <div className="text-center"><p className="text-xs uppercase opacity-60">ROAS</p><p className="text-xl font-bold">{item.roas}</p></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 text-primary text-sm font-bold uppercase tracking-widest mb-4">
+                            <span className="w-8 h-0.5 bg-primary" /><span>{item.category}</span>
+                          </div>
+                          <h3 className="text-3xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight">{item.title}</h3>
+                          <Button variant="link" className="p-0 text-lg font-bold group-hover:translate-x-2 transition-transform">
+                            Дивитися деталі <ArrowRight className="ml-2" />
+                          </Button>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2 text-primary text-sm font-bold uppercase tracking-widest mb-4">
-                  <span className="w-8 h-0.5 bg-primary" /><span>{item.category}</span>
-                </div>
-                <h3 className="text-3xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight">{item.title}</h3>
-                <Button variant="link" className="p-0 text-lg font-bold group-hover:translate-x-2 transition-transform">
-                  Дивитися деталі <ArrowRight className="ml-2" />
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+                )}
+              </div>
+            </section>
+          </>
+        );
+      })()}
 
       {/* 4. Featured Case */}
       <section className="py-24 bg-gray-50">

@@ -45,8 +45,10 @@ export default function Navbar() {
               <a
                 key={link.name}
                 href={link.href}
-                className={`text-sm font-medium transition-colors ${
-                  activePath === link.href ? 'text-primary' : 'hover:text-primary'
+                className={`text-sm font-medium transition-colors relative pb-1 ${
+                  activePath === link.href
+                    ? 'text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:rounded-full'
+                    : 'hover:text-primary'
                 }`}
               >
                 {link.name}
@@ -79,8 +81,8 @@ export default function Navbar() {
             <a
               key={link.name}
               href={link.href}
-              className={`block text-lg font-medium ${
-                activePath === link.href ? 'text-primary' : 'hover:text-primary'
+              className={`block text-lg font-medium border-l-2 pl-3 ${
+                activePath === link.href ? 'text-primary border-primary' : 'border-transparent hover:text-primary'
               }`}
             >
               {link.name}

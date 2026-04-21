@@ -10,7 +10,9 @@ export default function Footer() {
   const opt = typeof window !== 'undefined' ? (window.wpFooter ?? {}) : {};
   const f = (key: string, fb: string) => { const v = opt[key]; return (v !== undefined && v !== null && v !== '') ? v : fb; };
 
-  const footerLinks =
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+
+const footerLinks =
     typeof window !== 'undefined' && window.wpFooterMenu?.length
       ? window.wpFooterMenu.map(({ name, href }) => ({ name, href }))
       : fallbackFooterLinks;
@@ -36,7 +38,12 @@ export default function Footer() {
             <ul className="space-y-4 text-gray-400">
               {footerLinks.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="hover:text-primary transition-colors">{link.name}</a>
+                  <a
+                    href={link.href}
+                    className={`transition-colors ${currentPath === link.href ? 'text-primary font-semibold' : 'hover:text-primary'}`}
+                  >
+                    {link.name}
+                  </a>
                 </li>
               ))}
             </ul>

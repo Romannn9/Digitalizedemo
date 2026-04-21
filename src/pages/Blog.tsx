@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { motion } from "motion/react";
-import { ArrowRight, Calendar, User, Mail } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { ArrowRight, Calendar, User, Mail, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { decodeHtml, stripHtml, formatDate } from "../utils/wp";
 
 interface WpPost {
   id: number;
@@ -30,12 +31,19 @@ const FB_FAQ = [
   { q: "Чи є у вас гостьові публікації?",          a: "Ми приймаємо гостьові статті лише від перевірених експертів ринку. Якщо ви хочете стати автором — надішліть нам свій кейс." },
 ];
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' });
+function getPostMeta(post: WpPost) {
+  return {
+    image:    post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? '',
+    author:   decodeHtml(post._embedded?.author?.[0]?.name ?? ''),
+    category: decodeHtml(post._embedded?.['wp:term']?.[0]?.[0]?.name ?? ''),
+    excerpt:  stripHtml(post.excerpt.rendered),
+  };
 }
 
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, ' ').trim();
+function PostImage({ image, title, className = '' }: { image: string; title: string; className?: string }) {
+  return image
+    ? <img src={image} alt={title} className={`object-cover w-full h-full ${className}`} />
+    : <div className="w-full h-full bg-gray-800 flex items-center justify-center text-primary text-5xl font-bold">D</div>;
 }
 
 export default function Blog() {
@@ -46,17 +54,52 @@ export default function Blog() {
   const authors  = rep('blg_authors',   FB_AUTHORS);
   const faqItems = rep('blg_faq_items', FB_FAQ);
 
-  const [posts, setPosts]     = useState<WpPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [posts, setPosts]         = useState<WpPost[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [sliderIdx, setSliderIdx] = useState(0);
+  const [search, setSearch]       = useState('');
+  const [activeCategory, setActiveCategory] = useState('');
 
   useEffect(() => {
     const apiBase = (typeof window !== 'undefined' && window.wpSite?.apiUrl) ? window.wpSite.apiUrl : '/wp-json/';
-    fetch(`${apiBase}wp/v2/posts?_embed&per_page=12&status=publish`)
+    fetch(`${apiBase}wp/v2/posts?_embed&per_page=20&status=publish`)
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setPosts(data); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  // Slide groups: each slide = [featured, mini1, mini2]
+  const slideGroups: WpPost[][] = [];
+  for (let i = 0; i < posts.length; i += 3) {
+    const g = posts.slice(i, i + 3);
+    if (g.length > 0) slideGroups.push(g);
+  }
+  const totalSlides = slideGroups.length;
+
+  // Auto-advance
+  useEffect(() => {
+    if (totalSlides < 2) return;
+    const t = setInterval(() => setSliderIdx(i => (i + 1) % totalSlides), 4500);
+    return () => clearInterval(t);
+  }, [totalSlides]);
+
+  const currentGroup  = slideGroups[sliderIdx % Math.max(totalSlides, 1)] ?? [];
+  const featuredSlide = currentGroup[0] ?? null;
+  const miniSlides    = currentGroup.slice(1, 3);
+
+  const allCategories = Array.from(new Set(
+    posts.flatMap(p => p._embedded?.['wp:term']?.[0]?.map(t => decodeHtml(t.name)) ?? [])
+  )).filter(Boolean);
+
+  const gridPosts = posts.slice(1).filter(p => {
+    const title = decodeHtml(p.title.rendered).toLowerCase();
+    const cats  = p._embedded?.['wp:term']?.[0]?.map(t => decodeHtml(t.name)) ?? [];
+    return (!search || title.includes(search.toLowerCase()) || stripHtml(p.excerpt.rendered).toLowerCase().includes(search.toLowerCase()))
+      && (!activeCategory || cats.includes(activeCategory));
+  });
+
+  const recentPosts = posts.slice(0, 5);
 
   return (
     <div className="flex flex-col">
@@ -75,74 +118,256 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* Posts */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="animate-pulse">
-                  <div className="aspect-video bg-gray-100 mb-6" />
-                  <div className="h-4 bg-gray-100 rounded mb-3 w-1/2" />
-                  <div className="h-6 bg-gray-100 rounded mb-2" />
-                  <div className="h-4 bg-gray-100 rounded w-3/4" />
+      {/* Hero Slider — окрема секція, поза чорним фоном */}
+      {!loading && slideGroups.length > 0 && (
+        <section className="bg-gray-50 pt-16 pb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative overflow-hidden" style={{ minHeight: '480px' }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={sliderIdx}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -40 }}
+                  transition={{ duration: 0.45 }}
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-2"
+                >
+                  {/* Featured — 2/3 */}
+                  {featuredSlide && (() => {
+                    const { image, author, category, excerpt } = getPostMeta(featuredSlide);
+                    return (
+                      <a
+                        href={featuredSlide.link}
+                        className="relative group overflow-hidden lg:col-span-2"
+                        style={{ minHeight: '480px' }}
+                      >
+                        <div className="absolute inset-0">
+                          <PostImage image={image} title={featuredSlide.title.rendered} className="group-hover:scale-105 transition-transform duration-700" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        </div>
+                        <div className="relative z-10 h-full flex flex-col justify-end p-8">
+                          {category && (
+                            <span className="inline-block bg-primary text-white text-xs font-bold uppercase tracking-widest px-3 py-1 mb-4 w-fit">
+                              {category}
+                            </span>
+                          )}
+                          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight group-hover:text-primary transition-colors">
+                            {decodeHtml(featuredSlide.title.rendered)}
+                          </h2>
+                          <p className="text-gray-300 text-sm line-clamp-2 mb-4 max-w-xl">{excerpt}</p>
+                          <div className="flex items-center gap-4 text-gray-400 text-sm">
+                            <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{formatDate(featuredSlide.date)}</span>
+                            {author && <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />{author}</span>}
+                          </div>
+                        </div>
+                      </a>
+                    );
+                  })()}
+
+                  {/* Mini posts — 1/3 */}
+                  <div className="flex flex-col gap-2">
+                    {miniSlides.map((post) => {
+                      const { image, category } = getPostMeta(post);
+                      return (
+                        <a
+                          key={post.id}
+                          href={post.link}
+                          className="relative group overflow-hidden flex-1"
+                          style={{ minHeight: '236px' }}
+                        >
+                          <div className="absolute inset-0">
+                            <PostImage image={image} title={post.title.rendered} className="group-hover:scale-105 transition-transform duration-700" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
+                          </div>
+                          <div className="relative z-10 h-full flex flex-col justify-end p-5">
+                            {category && (
+                              <span className="inline-block bg-primary text-white text-xs font-bold uppercase tracking-widest px-2 py-0.5 mb-2 w-fit">
+                                {category}
+                              </span>
+                            )}
+                            <h3 className="text-base font-bold text-white leading-snug group-hover:text-primary transition-colors">
+                              {decodeHtml(post.title.rendered)}
+                            </h3>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Controls */}
+              {totalSlides > 1 && (
+                <div className="flex items-center justify-between mt-4">
+                  {/* Dots */}
+                  <div className="flex gap-2">
+                    {Array.from({ length: totalSlides }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSliderIdx(i)}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${i === sliderIdx % totalSlides ? 'w-8 bg-primary' : 'w-4 bg-gray-300'}`}
+                      />
+                    ))}
+                  </div>
+                  {/* Arrows */}
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => setSliderIdx(i => (i - 1 + totalSlides) % totalSlides)}
+                      className="bg-white border border-gray-200 hover:bg-primary hover:text-white text-gray-600 w-8 h-8 flex items-center justify-center transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setSliderIdx(i => (i + 1) % totalSlides)}
+                      className="bg-white border border-gray-200 hover:bg-primary hover:text-white text-gray-600 w-8 h-8 flex items-center justify-center transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              ))}
+              )}
             </div>
-          ) : posts.length === 0 ? (
-            <p className="text-center text-gray-400 py-20">Поки немає публікацій.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-              {posts.map((post, i) => {
-                const image    = post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? '';
-                const author   = post._embedded?.author?.[0]?.name ?? '';
-                const category = post._embedded?.['wp:term']?.[0]?.[0]?.name ?? '';
-                const excerpt  = stripHtml(post.excerpt.rendered);
-                return (
-                  <motion.article
-                    key={post.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.07 }}
-                    className="group cursor-pointer"
-                  >
-                    <div className="relative overflow-hidden mb-6 aspect-video">
-                      {image
-                        ? <img src={image} alt={post.title.rendered} className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" />
-                        : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300 text-5xl font-bold">D</div>
-                      }
-                      {category && (
-                        <div className="absolute top-4 left-4 bg-primary text-white px-3 py-1 text-xs font-bold uppercase tracking-widest">
-                          {category}
-                        </div>
-                      )}
+          </div>
+        </section>
+      )}
+
+      {/* Posts grid + Sidebar */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+            {/* Posts grid – 2/3 */}
+            <div className="lg:col-span-2">
+              {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="animate-pulse">
+                      <div className="aspect-video bg-gray-100 mb-4" />
+                      <div className="h-3 bg-gray-100 rounded mb-2 w-1/3" />
+                      <div className="h-5 bg-gray-100 rounded mb-2" />
+                      <div className="h-3 bg-gray-100 rounded w-2/3" />
                     </div>
-                    <div className="flex items-center space-x-4 text-gray-400 text-sm mb-4">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>{formatDate(post.date)}</span>
-                      </div>
-                      {author && (
-                        <div className="flex items-center space-x-1">
-                          <User className="w-4 h-4" />
-                          <span>{author}</span>
-                        </div>
-                      )}
-                    </div>
-                    <h3
-                      className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight"
-                      dangerouslySetInnerHTML={{ __html: post.title.rendered }}
-                    />
-                    <p className="text-gray-600 mb-6 line-clamp-2">{excerpt}</p>
-                    <Button variant="link" className="p-0 text-primary font-bold group" onClick={() => { window.location.href = post.link; }}>
-                      Читати далі <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </motion.article>
-                );
-              })}
+                  ))}
+                </div>
+              ) : gridPosts.length === 0 ? (
+                <p className="text-gray-400 py-12">
+                  {posts.length === 0 ? 'Поки немає публікацій.' : 'Нічого не знайдено.'}
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                  {gridPosts.map((post, i) => {
+                    const { image, author, category, excerpt } = getPostMeta(post);
+                    return (
+                      <motion.article
+                        key={post.id}
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.05 }}
+                        className="group"
+                      >
+                        <a href={post.link} className="block">
+                          <div className="relative overflow-hidden mb-5 aspect-video">
+                            <PostImage image={image} title={post.title.rendered} className="group-hover:scale-105 transition-transform duration-700" />
+                            {category && (
+                              <span className="absolute top-3 left-3 bg-primary text-white text-xs font-bold uppercase tracking-widest px-2 py-0.5">
+                                {category}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 text-gray-400 text-xs mb-3">
+                            <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(post.date)}</span>
+                            {author && <span className="flex items-center gap-1"><User className="w-3 h-3" />{author}</span>}
+                          </div>
+                          <h3 className="text-lg font-bold mb-3 leading-snug group-hover:text-primary transition-colors">
+                            {decodeHtml(post.title.rendered)}
+                          </h3>
+                          <p className="text-gray-500 text-sm line-clamp-2 mb-4">{excerpt}</p>
+                        </a>
+                        <a
+                          href={post.link}
+                          className="inline-flex items-center text-primary text-sm font-bold hover:gap-2 gap-1 transition-all"
+                        >
+                          Читати <ArrowRight className="w-3.5 h-3.5" />
+                        </a>
+                      </motion.article>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Sidebar – 1/3 */}
+            <aside className="space-y-10">
+              {/* Search */}
+              <div>
+                <h4 className="text-sm font-bold uppercase tracking-widest mb-4">Пошук</h4>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="Пошук по блогу..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="pl-9 rounded-none border-gray-200 h-11"
+                  />
+                </div>
+              </div>
+
+              {/* Recent posts */}
+              {recentPosts.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-bold uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
+                    Останні публікації
+                  </h4>
+                  <div className="space-y-4">
+                    {recentPosts.map(post => {
+                      const { image, category } = getPostMeta(post);
+                      return (
+                        <a key={post.id} href={post.link} className="flex gap-3 group">
+                          <div className="w-16 h-16 flex-shrink-0 overflow-hidden bg-gray-100">
+                            <PostImage image={image} title={post.title.rendered} className="group-hover:scale-105 transition-transform duration-500" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            {category && <p className="text-primary text-xs font-bold uppercase tracking-wider mb-1">{category}</p>}
+                            <p className="text-sm font-semibold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                              {decodeHtml(post.title.rendered)}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">{formatDate(post.date)}</p>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Categories */}
+              {allCategories.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-bold uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
+                    Категорії
+                  </h4>
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => setActiveCategory('')}
+                      className={`block w-full text-left text-sm py-1.5 px-2 transition-colors ${!activeCategory ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 hover:text-primary'}`}
+                    >
+                      Всі публікації
+                    </button>
+                    {allCategories.map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => setActiveCategory(cat === activeCategory ? '' : cat)}
+                        className={`block w-full text-left text-sm py-1.5 px-2 transition-colors ${activeCategory === cat ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 hover:text-primary'}`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </aside>
+          </div>
         </div>
       </section>
 

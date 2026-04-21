@@ -1,10 +1,7 @@
 import { motion } from "motion/react";
-import { Calendar, User, Tag, ArrowLeft } from "lucide-react";
+import { Calendar, User, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' });
-}
+import { decodeHtml, formatDate } from "../utils/wp";
 
 export default function Post() {
   const post = typeof window !== 'undefined' ? window.wpPage : null;
@@ -34,12 +31,12 @@ export default function Post() {
               <div className="flex gap-2 mb-6 flex-wrap">
                 {post.categories.map((cat, i) => (
                   <span key={i} className="inline-block bg-primary/20 border border-primary/30 text-primary text-xs font-bold uppercase tracking-widest px-3 py-1">
-                    {cat}
+                    {decodeHtml(cat)}
                   </span>
                 ))}
               </div>
             )}
-            <h1 className="text-4xl md:text-6xl font-bold mb-8 tracking-tight leading-tight">{post.title}</h1>
+            <h1 className="text-4xl md:text-6xl font-bold mb-8 tracking-tight leading-tight">{decodeHtml(post.title)}</h1>
             <div className="flex flex-wrap items-center gap-6 text-gray-400 text-sm">
               {post.date && (
                 <div className="flex items-center gap-2">
