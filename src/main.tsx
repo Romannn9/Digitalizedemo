@@ -11,6 +11,7 @@ import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 import Post from './pages/Post';
 import Page from './pages/Page';
+import CaseStudy from './pages/CaseStudy';
 import NotFound from './pages/NotFound';
 
 const rootEl = document.getElementById('root')!;
@@ -27,6 +28,7 @@ const pages: Record<string, React.ReactElement> = {
   contact:  <Contact />,
   post:     <Post />,
   page:     <Page />,
+  case:     <CaseStudy />,
   '404':    <NotFound />,
 };
 

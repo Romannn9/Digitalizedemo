@@ -8,18 +8,54 @@ const acf = typeof window !== 'undefined' ? (window.wpAcf ?? {}) : {};
 const f   = (key: string, fb: any) => { const v = acf[key]; return (v !== undefined && v !== null && v !== '' && v !== false) ? v : fb; };
 const rep = (key: string, fb: any[]) => { const v = acf[key]; return (Array.isArray(v) && v.length > 0) ? v : fb; };
 
+type CaseCard = {
+  id?: number;
+  title: string;
+  category: string;
+  roi: string;
+  cpa: string;
+  roas: string;
+  image: string;
+  url: string;
+};
+
 export default function Cases() {
   const [activeFilter, setActiveFilter] = useState('all');
   const h1Line1      = f('cases_h1_line1',    'НАШІ КЕЙСИ:');
   const h1Accent     = f('cases_h1_accent',   'РЕАЛЬНІ ЦИФРИ');
   const headerDesc   = f('cases_header_desc', 'Ми не просто показуємо красиві картинки. Ми показуємо, як наші стратегії впливають на банківський рахунок клієнта.');
 
-  const casesItems = rep('cases_items', [
-    { title: 'Масштабування E-commerce бренду одягу',       category: 'Target',  roi: '520%', cpa: '$2.4', roas: '6.2', image: 'https://picsum.photos/seed/case1/800/600' },
-    { title: 'Залучення лідів для ЖК преміум-класу',        category: 'Context', roi: '380%', cpa: '$15',  roas: '4.5', image: 'https://picsum.photos/seed/case2/800/600' },
-    { title: 'Просування мобільного додатку для фітнесу',   category: 'SMM',     roi: '410%', cpa: '$0.8', roas: '5.1', image: 'https://picsum.photos/seed/case3/800/600' },
-    { title: 'SEO-просування міжнародного маркетплейсу',    category: 'SEO',     roi: '890%', cpa: '$1.2', roas: '12.4',image: 'https://picsum.photos/seed/case4/800/600' },
-  ]);
+  const wpCases = typeof window !== 'undefined' ? window.wpCasesArchive : undefined;
+  const fromCpt: CaseCard[] =
+    Array.isArray(wpCases) && wpCases.length > 0
+      ? wpCases.map((c) => ({
+          id: c.id,
+          title: c.title || '',
+          category: c.category || '',
+          roi: c.roi || '—',
+          cpa: c.cpa || '—',
+          roas: c.roas || '—',
+          image: c.image || '',
+          url: c.url || '',
+        }))
+      : [];
+
+  const acfFallback = rep('cases_items', [
+    { title: 'Масштабування E-commerce бренду одягу',       category: 'Target',  roi: '520%', cpa: '$2.4', roas: '6.2', image: 'https://picsum.photos/seed/case1/800/600', url: '' },
+    { title: 'Залучення лідів для ЖК преміум-класу',        category: 'Context', roi: '380%', cpa: '$15',  roas: '4.5', image: 'https://picsum.photos/seed/case2/800/600', url: '' },
+    { title: 'Просування мобільного додатку для фітнесу',   category: 'SMM',     roi: '410%', cpa: '$0.8', roas: '5.1', image: 'https://picsum.photos/seed/case3/800/600', url: '' },
+    { title: 'SEO-просування міжнародного маркетплейсу',    category: 'SEO',     roi: '890%', cpa: '$1.2', roas: '12.4',image: 'https://picsum.photos/seed/case4/800/600', url: '' },
+  ]).map((item: any) => ({
+    title: item.title || '',
+    category: item.category || '',
+    roi: item.roi || '—',
+    cpa: item.cpa || '—',
+    roas: item.roas || '—',
+    image: item.image || '',
+    url: typeof item.url === 'string' ? item.url : '',
+  }));
+
+  const casesItems: CaseCard[] = fromCpt.length > 0 ? fromCpt : acfFallback;
 
   const fcTitle      = f('fc_title',       'Як ми допомогли Fintech-стартапу залучити 10,000 користувачів за 3 місяці');
   const fcProblem    = f('fc_problem',     'Висока вартість інсталу ($4.5) та низька конверсія в реєстрацію.');
@@ -119,38 +155,53 @@ export default function Cases() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
                     <AnimatePresence mode="popLayout">
-                      {filtered.map((item: any, i: number) => (
-                        <motion.div
-                          key={item.title + item.category}
-                          layout
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.3, delay: i * 0.05 }}
-                          className="group cursor-pointer"
-                        >
-                          <div className="relative overflow-hidden mb-8 aspect-[4/3]">
-                            {item.image
-                              ? <img src={item.image} alt={item.title} className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" />
-                              : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300 text-6xl font-bold">D</div>
-                            }
-                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                              <div className="flex justify-between text-white">
-                                <div className="text-center"><p className="text-xs uppercase opacity-60">ROI</p><p className="text-xl font-bold">{item.roi}</p></div>
-                                <div className="text-center"><p className="text-xs uppercase opacity-60">CPA</p><p className="text-xl font-bold">{item.cpa}</p></div>
-                                <div className="text-center"><p className="text-xs uppercase opacity-60">ROAS</p><p className="text-xl font-bold">{item.roas}</p></div>
+                      {filtered.map((item: CaseCard, i: number) => {
+                        const cardKey = item.id != null ? `cpt-${item.id}` : `${item.title}-${item.category}-${i}`;
+                        const inner = (
+                          <>
+                            <div className="relative overflow-hidden mb-8 aspect-[4/3]">
+                              {item.image ? (
+                                <img src={item.image} alt={item.title} className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" />
+                              ) : (
+                                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300 text-6xl font-bold">D</div>
+                              )}
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                                <div className="flex justify-between text-white">
+                                  <div className="text-center"><p className="text-xs uppercase opacity-60">ROI</p><p className="text-xl font-bold">{item.roi}</p></div>
+                                  <div className="text-center"><p className="text-xs uppercase opacity-60">CPA</p><p className="text-xl font-bold">{item.cpa}</p></div>
+                                  <div className="text-center"><p className="text-xs uppercase opacity-60">ROAS</p><p className="text-xl font-bold">{item.roas}</p></div>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="flex items-center space-x-2 text-primary text-sm font-bold uppercase tracking-widest mb-4">
-                            <span className="w-8 h-0.5 bg-primary" /><span>{item.category}</span>
-                          </div>
-                          <h3 className="text-3xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight">{item.title}</h3>
-                          <Button variant="link" className="p-0 text-lg font-bold group-hover:translate-x-2 transition-transform">
-                            Дивитися деталі <ArrowRight className="ml-2" />
-                          </Button>
-                        </motion.div>
-                      ))}
+                            <div className="flex items-center space-x-2 text-primary text-sm font-bold uppercase tracking-widest mb-4">
+                              <span className="w-8 h-0.5 bg-primary" /><span>{item.category || 'Кейс'}</span>
+                            </div>
+                            <h3 className="text-3xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight">{item.title}</h3>
+                            <span className="inline-flex items-center text-lg font-bold text-primary group-hover:translate-x-2 transition-transform">
+                              Дивитися деталі <ArrowRight className="ml-2 w-5 h-5" />
+                            </span>
+                          </>
+                        );
+                        const shell = item.url ? (
+                          <a href={item.url} className="group block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm">
+                            {inner}
+                          </a>
+                        ) : (
+                          <div className="group block cursor-default">{inner}</div>
+                        );
+                        return (
+                          <motion.div
+                            key={cardKey}
+                            layout
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.3, delay: i * 0.05 }}
+                          >
+                            {shell}
+                          </motion.div>
+                        );
+                      })}
                     </AnimatePresence>
                   </div>
                 )}
@@ -280,7 +331,7 @@ export default function Cases() {
       <section className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold mb-12 text-center">{faqTitle}</h2>
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion className="w-full">
             {faqItems.map((item: any, i: number) => (
               <AccordionItem key={i} value={`item-${i}`}>
                 <AccordionTrigger className="text-lg font-bold">{item.q}</AccordionTrigger>

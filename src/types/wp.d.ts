@@ -15,6 +15,18 @@ declare global {
       href: string;
       order: number;
     }>;
+    wpCasesArchive?: Array<{
+      id: number;
+      title: string;
+      slug: string;
+      url: string;
+      excerpt: string;
+      image: string;
+      category: string;
+      roi: string;
+      cpa: string;
+      roas: string;
+    }>;
     wpPage?: {
       id: number;
       slug: string;
@@ -25,6 +37,7 @@ declare global {
       author?: string;
       image?: string;
       categories?: string[];
+      postType?: string;
     } | null;
     wpSite?: {
       name: string;

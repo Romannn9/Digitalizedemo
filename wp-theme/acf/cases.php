@@ -24,6 +24,7 @@ acf_add_local_field_group([
             ['key' => 'field_ci_cpa',   'label' => 'CPA',  'name' => 'cpa',   'type' => 'text'],
             ['key' => 'field_ci_roas',  'label' => 'ROAS', 'name' => 'roas',  'type' => 'text'],
             ['key' => 'field_ci_image', 'label' => 'Зображення', 'name' => 'image', 'type' => 'image', 'return_format' => 'url'],
+            ['key' => 'field_ci_url', 'label' => 'Посилання «Дивитися деталі»', 'name' => 'url', 'type' => 'url', 'instructions' => 'Якщо порожньо — картка без переходу (коли використовуєте лише репітер без CPT).'],
         ]],
 
         // FEATURED CASE

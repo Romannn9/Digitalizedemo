@@ -346,7 +346,7 @@ export default function Home() {
       <section className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold mb-12 text-center">{faqTitle}</h2>
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion className="w-full">
             {faqItems.map((item: any, i: number) => (
               <AccordionItem key={i} value={`item-${i}`}>
                 <AccordionTrigger className="text-lg font-bold hover:text-primary transition-colors">{item.q}</AccordionTrigger>

@@ -1,5 +1,7 @@
 <?php
 
+require_once get_template_directory() . '/inc/case-post-type.php';
+
 function digitalize_enqueue_scripts() {
     $dist_path = get_template_directory() . '/dist';
     $dist_uri  = get_template_directory_uri() . '/dist';
@@ -32,7 +34,14 @@ function digitalize_enqueue_scripts() {
     global $post;
     $page_data = null;
     if ($post) {
-        $categories = wp_get_post_categories($post->ID, ['fields' => 'names']);
+        if ($post->post_type === 'post') {
+            $categories = wp_get_post_categories($post->ID, ['fields' => 'names']);
+        } elseif ($post->post_type === 'digitalize_case') {
+            $terms = wp_get_post_terms($post->ID, 'case_category', ['fields' => 'names']);
+            $categories = is_wp_error($terms) ? [] : $terms;
+        } else {
+            $categories = [];
+        }
         $page_data = [
             'id'         => $post->ID,
             'slug'       => $post->post_name,
@@ -43,6 +52,7 @@ function digitalize_enqueue_scripts() {
             'author'     => get_the_author_meta('display_name', $post->post_author),
             'image'      => get_the_post_thumbnail_url($post->ID, 'large') ?: '',
             'categories' => $categories,
+            'postType'   => $post->post_type,
         ];
     }
     wp_localize_script('digitalize-app', 'wpPage', $page_data);
@@ -77,6 +87,37 @@ function digitalize_enqueue_scripts() {
 
     $footer_opts = function_exists('get_fields') ? (get_fields('option') ?: []) : [];
     wp_localize_script('digitalize-app', 'wpFooter', $footer_opts);
+
+    $cases_archive = [];
+    if ($post && get_page_template_slug($post->ID) === 'page-cases.php') {
+        $q = new WP_Query([
+            'post_type'      => 'digitalize_case',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'orderby'        => ['menu_order' => 'ASC', 'date' => 'DESC'],
+            'no_found_rows'  => true,
+        ]);
+        while ($q->have_posts()) {
+            $q->the_post();
+            $tid    = get_the_ID();
+            $tnames = wp_get_post_terms($tid, 'case_category', ['fields' => 'names']);
+            $first  = (is_wp_error($tnames) || empty($tnames)) ? '' : $tnames[0];
+            $cases_archive[] = [
+                'id'       => $tid,
+                'title'    => get_the_title($tid),
+                'slug'     => (string) get_post_field('post_name', $tid),
+                'url'      => get_permalink($tid),
+                'excerpt'  => get_the_excerpt($tid),
+                'image'    => get_the_post_thumbnail_url($tid, 'large') ?: '',
+                'category' => $first,
+                'roi'      => function_exists('get_field') ? (string) (get_field('case_roi', $tid) ?: '') : '',
+                'cpa'      => function_exists('get_field') ? (string) (get_field('case_cpa', $tid) ?: '') : '',
+                'roas'     => function_exists('get_field') ? (string) (get_field('case_roas', $tid) ?: '') : '',
+            ];
+        }
+        wp_reset_postdata();
+    }
+    wp_localize_script('digitalize-app', 'wpCasesArchive', $cases_archive);
 }
 add_action('wp_enqueue_scripts', 'digitalize_enqueue_scripts');
 
@@ -99,6 +140,7 @@ foreach (glob(get_template_directory() . '/acf/*.php') as $acf_file) {
 // Підтримка меню та featured image
 add_theme_support('menus');
 add_theme_support('post-thumbnails');
+add_theme_support('title-tag');
 register_nav_menus([
     'primary' => 'Main Menu',
     'footer'  => 'Footer Menu',

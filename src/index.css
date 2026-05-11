@@ -94,6 +94,11 @@
     --ring: #E31E24;
 }
 
+/* Fixed header clears the WP admin bar when logged in */
+body.admin-bar .digitalize-site-nav {
+  top: var(--wp-admin--admin-bar--height, 32px);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
