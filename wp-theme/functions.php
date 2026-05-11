@@ -16,6 +16,11 @@ if (is_readable($digitalize_case_inc)) {
     });
 }
 
+$digitalize_leads_inc = get_template_directory() . '/inc/leads.php';
+if (is_readable($digitalize_leads_inc)) {
+    require_once $digitalize_leads_inc;
+}
+
 function digitalize_enqueue_scripts() {
     $dist_path = get_template_directory() . '/dist';
     $dist_uri  = get_template_directory_uri() . '/dist';

@@ -19,6 +19,10 @@ Deploy requires `FTP_PASS` set in `.env.deploy` or as an env variable.
 
 One-time per clone: `git config core.hooksPath .githooks` — the `commit-msg` hook strips `Co-authored-by:` lines from commits. **Do not add `Co-authored-by:` trailers** to commit messages.
 
+## Leads / forms
+
+Contact forms use **Contact Form 7** REST (`ContactForm.tsx` → `contact-form-7/v1/contact-forms/{id}/feedback`). Email templates live in **WP Admin → Contact → форма**. Successful/failed/spam submissions are also logged as **Заявки** (`digitalize_lead` in WP admin) via `wp-theme/inc/leads.php`.
+
 ## Architecture
 
 This is a **React + Vite + Tailwind CSS** app targeting two environments via `mode`:
