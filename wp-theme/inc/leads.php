@@ -97,6 +97,8 @@ function digitalize_lead_save_from_cf7(object $form, string $status): void {
         return;
     }
 
+    $form_id = method_exists($form, 'id') ? (int) $form->id() : 0;
+
     $is_spam = ($status === 'spam');
     $title   = $d['name'] !== '' ? $d['name'] : ($d['email'] !== '' ? $d['email'] : 'Заявка');
     $title   = mb_substr($title . ($d['email'] ? ' — ' . $d['email'] : ''), 0, 180);
@@ -115,8 +117,6 @@ function digitalize_lead_save_from_cf7(object $form, string $status): void {
         $lines[] = '<p><strong>Повідомлення:</strong><br>' . nl2br(esc_html($d['message'])) . '</p>';
     }
     $lines[] = '<p><strong>IP:</strong> ' . esc_html(digitalize_lead_client_ip()) . '</p>';
-
-    $form_id = method_exists($form, 'id') ? (int) $form->id() : 0;
 
     $post_id = wp_insert_post([
         'post_type'    => 'digitalize_lead',

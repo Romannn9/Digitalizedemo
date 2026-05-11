@@ -6,6 +6,29 @@ import { Textarea } from "@/components/ui/textarea";
 
 const CF7_FORM_ID = 41;
 
+/** CF7 REST `create_feedback` requires a sanitized `_wpcf7_unit_tag` (see Contact Form 7 `rest-api.php`). */
+function appendCf7HiddenFields(formData: FormData, formId: number): void {
+  const postId = typeof window !== 'undefined' ? window.wpPage?.id : undefined;
+  // Mirrors `WPCF7_ContactForm::generate_unit_tag()` when not in the main loop (typical single embed).
+  const unitTag = `wpcf7-f${formId}-o1`;
+  formData.append('_wpcf7', String(formId));
+  formData.append('_wpcf7_unit_tag', unitTag);
+  if (postId != null && postId > 0) {
+    formData.append('_wpcf7_container_post', String(postId));
+  }
+}
+
+/** CF7 / WP may prepend notices to the body; parse the JSON object slice so the form still works. */
+function parseCf7FeedbackBody(raw: string): Record<string, unknown> {
+  const trimmed = raw.trim();
+  const start = trimmed.indexOf('{');
+  const end = trimmed.lastIndexOf('}');
+  if (start === -1 || end < start) {
+    throw new SyntaxError('Not JSON');
+  }
+  return JSON.parse(trimmed.slice(start, end + 1)) as Record<string, unknown>;
+}
+
 interface Props {
   buttonLabel?: string;
 }
@@ -26,6 +49,7 @@ export default function ContactForm({ buttonLabel = 'Надіслати запи
     setStatus('loading');
     const apiBase = window.wpSite?.apiUrl ?? '/wp-json/';
     const data = new FormData();
+    appendCf7HiddenFields(data, CF7_FORM_ID);
     data.append('your-name',    fields.name);
     data.append('your-email',   fields.email);
     data.append('your-phone',   fields.phone);
@@ -33,18 +57,40 @@ export default function ContactForm({ buttonLabel = 'Надіслати запи
     data.append('your-message', fields.message);
 
     try {
-      const res = await fetch(`${apiBase}contact-form-7/v1/contact-forms/${CF7_FORM_ID}/feedback`, {
+      const url = `${apiBase}contact-form-7/v1/contact-forms/${CF7_FORM_ID}/feedback`;
+      const res = await fetch(url, {
         method: 'POST',
         body: data,
+        credentials: 'same-origin',
       });
-      const json = await res.json();
+      const raw = await res.text();
+      let json: Record<string, unknown>;
+      try {
+        json = parseCf7FeedbackBody(raw);
+      } catch {
+        setStatus('error');
+        setErrorMsg(
+          res.ok
+            ? 'Некоректна відповідь сервера. Спробуйте ще раз.'
+            : `Помилка сервера (${res.status}). Спробуйте пізніше.`
+        );
+        return;
+      }
+
       if (json.status === 'mail_sent') {
         setStatus('success');
         setFields({ name: '', email: '', phone: '', website: '', message: '' });
-      } else {
-        setStatus('error');
-        setErrorMsg(json.message ?? 'Помилка надсилання. Спробуйте ще раз.');
+        return;
       }
+
+      setStatus('error');
+      const msg =
+        typeof json.message === 'string'
+          ? json.message
+          : typeof json.code === 'string'
+            ? json.code
+            : '';
+      setErrorMsg(msg || 'Помилка надсилання. Спробуйте ще раз.');
     } catch {
       setStatus('error');
       setErrorMsg('Помилка з\'єднання. Спробуйте ще раз.');
