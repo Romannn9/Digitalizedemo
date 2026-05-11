@@ -3,6 +3,10 @@
 $digitalize_case_inc = get_template_directory() . '/inc/case-post-type.php';
 if (is_readable($digitalize_case_inc)) {
     require_once $digitalize_case_inc;
+    $digitalize_case_migrate = get_template_directory() . '/inc/case-migrate-repeater.php';
+    if (is_readable($digitalize_case_migrate)) {
+        require_once $digitalize_case_migrate;
+    }
 } else {
     add_action('admin_notices', static function (): void {
         if (!current_user_can('manage_options')) {

@@ -26,36 +26,18 @@ export default function Cases() {
   const headerDesc   = f('cases_header_desc', 'Ми не просто показуємо красиві картинки. Ми показуємо, як наші стратегії впливають на банківський рахунок клієнта.');
 
   const wpCases = typeof window !== 'undefined' ? window.wpCasesArchive : undefined;
-  const fromCpt: CaseCard[] =
-    Array.isArray(wpCases) && wpCases.length > 0
-      ? wpCases.map((c) => ({
-          id: c.id,
-          title: c.title || '',
-          category: c.category || '',
-          roi: c.roi || '—',
-          cpa: c.cpa || '—',
-          roas: c.roas || '—',
-          image: c.image || '',
-          url: c.url || '',
-        }))
-      : [];
-
-  const acfFallback = rep('cases_items', [
-    { title: 'Масштабування E-commerce бренду одягу',       category: 'Target',  roi: '520%', cpa: '$2.4', roas: '6.2', image: 'https://picsum.photos/seed/case1/800/600', url: '' },
-    { title: 'Залучення лідів для ЖК преміум-класу',        category: 'Context', roi: '380%', cpa: '$15',  roas: '4.5', image: 'https://picsum.photos/seed/case2/800/600', url: '' },
-    { title: 'Просування мобільного додатку для фітнесу',   category: 'SMM',     roi: '410%', cpa: '$0.8', roas: '5.1', image: 'https://picsum.photos/seed/case3/800/600', url: '' },
-    { title: 'SEO-просування міжнародного маркетплейсу',    category: 'SEO',     roi: '890%', cpa: '$1.2', roas: '12.4',image: 'https://picsum.photos/seed/case4/800/600', url: '' },
-  ]).map((item: any) => ({
-    title: item.title || '',
-    category: item.category || '',
-    roi: item.roi || '—',
-    cpa: item.cpa || '—',
-    roas: item.roas || '—',
-    image: item.image || '',
-    url: typeof item.url === 'string' ? item.url : '',
-  }));
-
-  const casesItems: CaseCard[] = fromCpt.length > 0 ? fromCpt : acfFallback;
+  const casesItems: CaseCard[] = Array.isArray(wpCases)
+    ? wpCases.map((c) => ({
+        id: c.id,
+        title: c.title || '',
+        category: c.category || '',
+        roi: c.roi || '—',
+        cpa: c.cpa || '—',
+        roas: c.roas || '—',
+        image: c.image || '',
+        url: c.url || '',
+      }))
+    : [];
 
   const fcTitle      = f('fc_title',       'Як ми допомогли Fintech-стартапу залучити 10,000 користувачів за 3 місяці');
   const fcProblem    = f('fc_problem',     'Висока вартість інсталу ($4.5) та низька конверсія в реєстрацію.');
@@ -121,10 +103,22 @@ export default function Cases() {
         </div>
       </section>
 
-      {/* 2. Filter */}
-      {(() => {
-        const categories = ['all', ...Array.from(new Set(casesItems.map((c: any) => c.category).filter(Boolean)))];
-        const filtered = activeFilter === 'all' ? casesItems : casesItems.filter((c: any) => c.category === activeFilter);
+      {/* 2. Filter + grid (лише CPT; після деплою зайди в wp-admin один раз — міграція з репітеру) */}
+      {casesItems.length === 0 ? (
+        <section className="py-24 bg-white border-b border-gray-100">
+          <div className="max-w-2xl mx-auto px-4 text-center text-gray-600 text-lg leading-relaxed">
+            <p className="font-medium text-brand-black">Наразі немає опублікованих кейсів у розділі «Кейси».</p>
+            <p className="mt-4 text-base">
+              У кабінеті WordPress відкрий меню <strong>Кейси</strong> → додай записи та опублікуй їх. Категорії — у блоці «Категорії кейсів» (Target, Context, SMM, SEO).
+            </p>
+            <p className="mt-4 text-sm text-gray-400">
+              Якщо щойно оновили тему по FTP: один раз зайди в адмінку (під адміністратором) — підтягнуться старі дані з репітеру, якщо вони ще були на сторінці «Кейси».
+            </p>
+          </div>
+        </section>
+      ) : (() => {
+        const categories = ['all', ...Array.from(new Set(casesItems.map((c: CaseCard) => c.category).filter(Boolean)))];
+        const filtered = activeFilter === 'all' ? casesItems : casesItems.filter((c: CaseCard) => c.category === activeFilter);
         return (
           <>
             <section className="py-8 bg-white border-b border-gray-100 sticky top-20 z-40">

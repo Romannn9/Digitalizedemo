@@ -18,6 +18,7 @@ add_action('init', static function (): void {
         'hierarchical'      => true,
         'show_admin_column' => true,
         'show_in_rest'      => true,
+        'show_in_menu'      => 'edit.php?post_type=digitalize_case',
         'rewrite'           => ['slug' => 'case-category', 'with_front' => false],
     ]);
 
@@ -52,6 +53,20 @@ add_action('init', static function (): void {
         'capability_type'     => 'post',
     ]);
 }, 0);
+
+/** Базові категорії (як у старому репітері), щоб їх було видно в адмінці одразу після деплою. */
+add_action('init', static function (): void {
+    if (!taxonomy_exists('case_category')) {
+        return;
+    }
+    $defaults = ['Target', 'Context', 'SMM', 'SEO'];
+    foreach ($defaults as $name) {
+        if (get_term_by('name', $name, 'case_category')) {
+            continue;
+        }
+        wp_insert_term($name, 'case_category', ['slug' => sanitize_title($name)]);
+    }
+}, 11);
 
 add_action('after_switch_theme', static function (): void {
     flush_rewrite_rules();

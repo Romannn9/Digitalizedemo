@@ -13,19 +13,8 @@ acf_add_local_field_group([
         ['key' => 'field_cases_h1_accent','label' => 'H1 акцент', 'name' => 'cases_h1_accent', 'type' => 'text',     'default_value' => 'РЕАЛЬНІ ЦИФРИ'],
         ['key' => 'field_cases_header_desc','label'=>'Опис',      'name' => 'cases_header_desc','type' => 'textarea', 'default_value' => 'Ми не просто показуємо красиві картинки. Ми показуємо, як наші стратегії впливають на банківський рахунок клієнта.'],
 
-        // КЕЙСИ GRID
-        ['key' => 'tab_cases_grid', 'label' => 'Кейси', 'name' => '', 'type' => 'tab'],
-        ['key' => 'field_cases_items', 'label' => 'Кейси', 'name' => 'cases_items', 'type' => 'repeater',
-         'button_label' => 'Додати кейс', 'sub_fields' => [
-            ['key' => 'field_ci_title',    'label' => 'Назва',      'name' => 'title',    'type' => 'text'],
-            ['key' => 'field_ci_category', 'label' => 'Категорія',  'name' => 'category', 'type' => 'select',
-             'choices' => ['Target' => 'Target', 'Context' => 'Context', 'SMM' => 'SMM', 'SEO' => 'SEO']],
-            ['key' => 'field_ci_roi',   'label' => 'ROI',  'name' => 'roi',   'type' => 'text'],
-            ['key' => 'field_ci_cpa',   'label' => 'CPA',  'name' => 'cpa',   'type' => 'text'],
-            ['key' => 'field_ci_roas',  'label' => 'ROAS', 'name' => 'roas',  'type' => 'text'],
-            ['key' => 'field_ci_image', 'label' => 'Зображення', 'name' => 'image', 'type' => 'image', 'return_format' => 'url'],
-            ['key' => 'field_ci_url', 'label' => 'Посилання «Дивитися деталі»', 'name' => 'url', 'type' => 'url', 'instructions' => 'Якщо порожньо — картка без переходу (коли використовуєте лише репітер без CPT).'],
-        ]],
+        ['key' => 'field_cases_cpt_notice', 'label' => 'Сітка кейсів', 'name' => '', 'type' => 'message',
+         'message' => 'Картки на сторінці /cases/ беруться з меню «Кейси» (тип запису «Кейс»). Редагуйте та публікуйте кейси там. Одноразова міграція зі старого репітеру виконується автоматично при першому заході адміністратора в адмінку після оновлення теми.'],
 
         // FEATURED CASE
         ['key' => 'tab_cases_featured', 'label' => 'Головний кейс', 'name' => '', 'type' => 'tab'],
