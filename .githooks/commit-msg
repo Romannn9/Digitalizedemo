@@ -1,0 +1,2 @@
+#!/bin/sh
+exec python "$(dirname "$0")/msg-filter-strip-coauthor.py" "$1"

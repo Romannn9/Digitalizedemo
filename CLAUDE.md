@@ -15,6 +15,10 @@ npm run clean      # remove dist/ and wp-theme/dist/
 
 Deploy requires `FTP_PASS` set in `.env.deploy` or as an env variable.
 
+## Git
+
+One-time per clone: `git config core.hooksPath .githooks` — the `commit-msg` hook strips `Co-authored-by:` lines from commits. **Do not add `Co-authored-by:` trailers** to commit messages.
+
 ## Architecture
 
 This is a **React + Vite + Tailwind CSS** app targeting two environments via `mode`:
