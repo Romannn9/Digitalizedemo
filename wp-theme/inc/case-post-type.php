@@ -44,7 +44,7 @@ add_action('init', static function (): void {
         'show_in_admin_bar'   => true,
         'show_in_rest'        => true,
         'menu_icon'           => 'dashicons-chart-area',
-        'menu_position'       => 22,
+        'menu_position'       => 8,
         'has_archive'         => false,
         'exclude_from_search' => false,
         'supports'            => ['title', 'editor', 'excerpt', 'thumbnail', 'revisions', 'page-attributes'],

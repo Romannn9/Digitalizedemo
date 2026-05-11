@@ -1,6 +1,16 @@
 <?php
 
-require_once get_template_directory() . '/inc/case-post-type.php';
+$digitalize_case_inc = get_template_directory() . '/inc/case-post-type.php';
+if (is_readable($digitalize_case_inc)) {
+    require_once $digitalize_case_inc;
+} else {
+    add_action('admin_notices', static function (): void {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        echo '<div class="notice notice-error"><p><strong>Digitalize:</strong> на сервері немає файлу <code>wp-content/themes/digitalize/inc/case-post-type.php</code>. Зробіть повний деплой теми (FTP), включно з папкою <code>inc/</code>.</p></div>';
+    });
+}
 
 function digitalize_enqueue_scripts() {
     $dist_path = get_template_directory() . '/dist';
