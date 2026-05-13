@@ -126,7 +126,7 @@ export default function Home() {
             <span className="inline-block py-1 px-3 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-6">
               {heroBadge}
             </span>
-            <h1 className="text-6xl md:text-8xl font-bold leading-[0.9] mb-8 tracking-tighter">
+            <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold leading-[0.9] mb-8 tracking-tighter">
               {heroLine1} <br />
               <span className="text-primary italic">{heroAccent}</span> <br />
               {heroLine3}
