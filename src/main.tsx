@@ -17,7 +17,19 @@ import NotFound from './pages/NotFound';
 const rootEl = document.getElementById('root')!;
 
 const isWP = import.meta.env.MODE === 'wp';
-const page = rootEl.dataset.page ?? 'home';
+function getDevPageFromPath(pathname: string) {
+  const normalized = pathname.replace(/^\/Digitalizedemo\/?/, '/');
+  if (normalized.startsWith('/cases/')) return 'cases';
+  if (normalized.startsWith('/services/')) return 'services';
+  if (normalized.startsWith('/about/')) return 'about';
+  if (normalized.startsWith('/blog/')) return 'blog';
+  if (normalized.startsWith('/contact/')) return 'contact';
+  return 'home';
+}
+
+const page = isWP
+  ? (rootEl.dataset.page ?? 'home')
+  : getDevPageFromPath(window.location.pathname);
 
 const pages: Record<string, React.ReactElement> = {
   home:     <Home />,

@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { Shield, Target, Zap } from "lucide-react";
+import PageHeroBackground from "@/src/components/PageHeroBackground";
+import { buildContactUrl } from "@/src/lib/contact";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Shield: <Shield className="w-10 h-10 text-primary" />,
@@ -22,10 +24,15 @@ const FB_VALUES = [
 
 const FB_TEAM = [
   { name: "Артем Волков",    role: "CEO & Founder",     image: "" },
-  { name: "Олена Кравченко", role: "Head of Strategy",  image: "" },
+  { name: "Олена Кравченко", role: "Head of Strategy",  image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&h=1200&q=85" },
   { name: "Максим Данилюк",  role: "Lead Media Buyer",  image: "" },
-  { name: "Анна Соколова",   role: "Creative Director", image: "" },
+  { name: "Анна Соколова",   role: "Creative Director", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&h=1200&q=85" },
 ];
+
+const TEAM_IMAGE_FALLBACKS: Record<string, string> = {
+  "Олена Кравченко": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&h=1200&q=85",
+  "Анна Соколова": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&h=1200&q=85",
+};
 
 const FB_ACHIEVE = [
   { value: "300+", label: "Проєктів" },
@@ -44,12 +51,14 @@ export default function About() {
   const team         = rep('abt_team',          FB_TEAM);
   const achievements = rep('abt_stats',         FB_ACHIEVE);
   const officePhotos = rep('abt_office_photos', []);
+  const teamBtnUrl   = buildContactUrl(f('abt_team_btn_url', '/contact/'), { topic: 'Питання по команді' });
+  const ctaButtonUrl  = buildContactUrl(f('abt_cta_button_url', '/contact/'), { topic: 'Співпраця з командою' });
 
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="py-24 bg-brand-black text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/5" />
+      <section className="py-24 digitalize-page-hero text-white relative overflow-hidden">
+        <PageHeroBackground />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
@@ -113,7 +122,7 @@ export default function About() {
             <Button
               variant="outline"
               className="border-brand-black text-brand-black hover:bg-brand-black hover:text-white rounded-none px-8 py-6"
-              onClick={() => { window.location.href = f('abt_team_btn_url', '/contact/'); }}
+              onClick={() => { window.location.href = teamBtnUrl; }}
             >
               {f('abt_team_btn', 'Приєднатися до нас')}
             </Button>
@@ -122,8 +131,8 @@ export default function About() {
             {team.map((member: any, i: number) => (
               <div key={i} className="group cursor-pointer">
                 <div className="relative overflow-hidden mb-6 aspect-[3/4]">
-                  {member.image
-                    ? <img src={member.image} alt={member.name} className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500" />
+                  {member.image || TEAM_IMAGE_FALLBACKS[member.name]
+                    ? <img src={member.image || TEAM_IMAGE_FALLBACKS[member.name]} alt={member.name} className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500" />
                     : <img src={`https://i.pravatar.cc/400?img=${i + 11}`} alt={member.name} className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500" referrerPolicy="no-referrer" />
                   }
                 </div>
@@ -176,7 +185,7 @@ export default function About() {
           <Button
             size="lg"
             className="bg-white text-primary hover:bg-gray-100 text-xl px-12 py-8 rounded-none font-bold uppercase tracking-widest"
-            onClick={() => { window.location.href = f('abt_cta_button_url', '/contact/'); }}
+            onClick={() => { window.location.href = ctaButtonUrl; }}
           >
             {f('abt_cta_button', 'Почати співпрацю')}
           </Button>

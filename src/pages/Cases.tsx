@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, TrendingUp, DollarSign, CheckCircle, PlayCircle } from "lucide-react";
+import PageHeroBackground from "@/src/components/PageHeroBackground";
+import { buildContactUrl } from "@/src/lib/contact";
 
 const acf = typeof window !== 'undefined' ? (window.wpAcf ?? {}) : {};
 const f   = (key: string, fb: any) => { const v = acf[key]; return (v !== undefined && v !== null && v !== '' && v !== false) ? v : fb; };
@@ -58,7 +60,7 @@ export default function Cases() {
   const ctaTitle     = f('cases_cta_title',      'ХОЧЕТЕ ТАКІ Ж РЕЗУЛЬТАТИ?');
   const ctaSubtitle  = f('cases_cta_subtitle',   'Ми готові розробити для вас індивідуальну стратегію росту. Перша консультація — безкоштовно.');
   const ctaButton    = f('cases_cta_button',     'Обговорити проєкт');
-  const ctaButtonUrl = f('cases_cta_button_url', '/contact/');
+  const ctaButtonUrl = buildContactUrl(f('cases_cta_button_url', '/contact/'), { topic: 'Обговорення кейсу' });
 
   const whyTitle = f('why_title', 'ЧОМУ ОБИРАЮТЬ DIGITALIZE');
   const whyItems = rep('why_items', [
@@ -91,8 +93,8 @@ export default function Cases() {
   return (
     <div className="flex flex-col">
       {/* 1. Header */}
-      <section className="py-24 bg-brand-black text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/5" />
+      <section className="py-24 digitalize-page-hero text-white relative overflow-hidden">
+        <PageHeroBackground />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
             <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter">

@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { motion } from "motion/react";
 import { ArrowRight, Target, Search, Share2, LineChart, CheckCircle2 } from "lucide-react";
+import PageHeroBackground from "@/src/components/PageHeroBackground";
+import { buildContactUrl } from "@/src/lib/contact";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Target:    <Target className="w-12 h-12" />,
@@ -43,6 +45,10 @@ const FB_FAQ = [
   { q: "Ви працюєте з ПДВ?",                               a: "Так, ми працюємо офіційно з укладанням договору та можливістю оплати на розрахунковий рахунок ТОВ з ПДВ." },
 ];
 
+function contactUrlWithSelection(url: string, key: 'service' | 'package' | 'topic', value: string) {
+  return buildContactUrl(url || '/contact/', { [key]: value });
+}
+
 export default function Services() {
   const acf = typeof window !== 'undefined' ? (window.wpAcf ?? {}) : {};
   const f   = (key: string, fb: any) => { const v = acf[key]; return (v !== undefined && v !== null && v !== '' && v !== false) ? v : fb; };
@@ -57,8 +63,8 @@ export default function Services() {
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <section className="py-24 bg-brand-black text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/5" />
+      <section className="py-24 digitalize-page-hero text-white relative overflow-hidden">
+        <PageHeroBackground />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-8xl font-bold mb-8 tracking-tighter uppercase">
@@ -96,7 +102,7 @@ export default function Services() {
                     </div>
                     <Button
                       className="bg-brand-black text-white px-10 py-6 rounded-none hover:bg-primary transition-colors group"
-                      onClick={() => { if (service.btn_url) window.location.href = service.btn_url; }}
+                      onClick={() => { window.location.href = contactUrlWithSelection(service.btn_url, 'service', service.title); }}
                     >
                       {service.btn || 'Замовити'} {service.title} <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
@@ -180,7 +186,7 @@ export default function Services() {
                   </ul>
                   <Button
                     className={`w-full py-8 rounded-none font-bold uppercase tracking-widest ${isPopular ? 'bg-primary text-white' : 'bg-brand-black text-white'}`}
-                    onClick={() => { if (pkg.btn_url) window.location.href = pkg.btn_url; }}
+                    onClick={() => { window.location.href = contactUrlWithSelection(pkg.btn_url, 'package', pkg.name); }}
                   >
                     {pkg.btn || 'Обрати пакет'}
                   </Button>
@@ -203,7 +209,7 @@ export default function Services() {
           <Button
             size="lg"
             className="bg-primary text-white px-12 py-8 rounded-none text-xl font-bold uppercase tracking-widest shadow-xl hover:shadow-primary/20"
-            onClick={() => { window.location.href = f('srv_cta_button_url', '/contact/'); }}
+            onClick={() => { window.location.href = contactUrlWithSelection(f('srv_cta_button_url', '/contact/'), 'topic', 'Консультація щодо вибору послуги'); }}
           >
             {f('srv_cta_button', 'Отримати консультацію')}
           </Button>

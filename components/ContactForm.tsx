@@ -3,38 +3,34 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
-const CF7_FORM_ID = 41;
-
-/** CF7 REST `create_feedback` requires a sanitized `_wpcf7_unit_tag` (see Contact Form 7 `rest-api.php`). */
-function appendCf7HiddenFields(formData: FormData, formId: number): void {
-  const postId = typeof window !== 'undefined' ? window.wpPage?.id : undefined;
-  // Mirrors `WPCF7_ContactForm::generate_unit_tag()` when not in the main loop (typical single embed).
-  const unitTag = `wpcf7-f${formId}-o1`;
-  formData.append('_wpcf7', String(formId));
-  formData.append('_wpcf7_unit_tag', unitTag);
-  if (postId != null && postId > 0) {
-    formData.append('_wpcf7_container_post', String(postId));
-  }
-}
-
-/** CF7 / WP may prepend notices to the body; parse the JSON object slice so the form still works. */
-function parseCf7FeedbackBody(raw: string): Record<string, unknown> {
-  const trimmed = raw.trim();
-  const start = trimmed.indexOf('{');
-  const end = trimmed.lastIndexOf('}');
-  if (start === -1 || end < start) {
-    throw new SyntaxError('Not JSON');
-  }
-  return JSON.parse(trimmed.slice(start, end + 1)) as Record<string, unknown>;
-}
+import { appendCf7HiddenFields, CF7_FORM_ID, getCf7FeedbackUrl, parseCf7FeedbackBody } from "@/src/lib/cf7";
 
 interface Props {
   buttonLabel?: string;
 }
 
+function getInitialFields() {
+  const fields = { name: '', email: '', phone: '', website: '', message: '' };
+  if (typeof window === 'undefined') return fields;
+
+  const params = new URLSearchParams(window.location.search);
+  const selectedPackage = params.get('package');
+  const selectedService = params.get('service');
+  const selectedTopic = params.get('topic');
+
+  if (selectedPackage) {
+    fields.message = `Цікавить пакет: ${selectedPackage}`;
+  } else if (selectedService) {
+    fields.message = `Цікавить послуга: ${selectedService}`;
+  } else if (selectedTopic) {
+    fields.message = `Тема звернення: ${selectedTopic}`;
+  }
+
+  return fields;
+}
+
 export default function ContactForm({ buttonLabel = 'Надіслати запит' }: Props) {
-  const [fields, setFields] = useState({ name: '', email: '', phone: '', website: '', message: '' });
+  const [fields, setFields] = useState(getInitialFields);
   const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -47,7 +43,6 @@ export default function ContactForm({ buttonLabel = 'Надіслати запи
     if (honeypot) return; // bot caught
 
     setStatus('loading');
-    const apiBase = window.wpSite?.apiUrl ?? '/wp-json/';
     const data = new FormData();
     appendCf7HiddenFields(data, CF7_FORM_ID);
     data.append('your-name',    fields.name);
@@ -57,8 +52,7 @@ export default function ContactForm({ buttonLabel = 'Надіслати запи
     data.append('your-message', fields.message);
 
     try {
-      const url = `${apiBase}contact-form-7/v1/contact-forms/${CF7_FORM_ID}/feedback`;
-      const res = await fetch(url, {
+      const res = await fetch(getCf7FeedbackUrl(CF7_FORM_ID), {
         method: 'POST',
         body: data,
         credentials: 'same-origin',

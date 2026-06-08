@@ -5,6 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, Calendar, User, Mail, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { decodeHtml, stripHtml, formatDate } from "../utils/wp";
+import PageHeroBackground from "@/src/components/PageHeroBackground";
 
 interface WpPost {
   id: number;
@@ -104,8 +105,8 @@ export default function Blog() {
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <section className="py-24 bg-brand-black text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/5" />
+      <section className="py-24 digitalize-page-hero text-white relative overflow-hidden">
+        <PageHeroBackground />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
             <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter uppercase">

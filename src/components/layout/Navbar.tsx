@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import BrandLogo from "../BrandLogo";
+import { buildContactUrl } from "@/src/lib/contact";
 
 const fallbackLinks = [
   { name: "Головна",  href: "/" },
@@ -13,7 +15,10 @@ const fallbackLinks = [
 
 const navLinks =
   typeof window !== 'undefined' && window.wpMenu?.length
-    ? window.wpMenu.map(({ name, href }) => ({ name, href }))
+    ? window.wpMenu.map(({ name, href }) => ({
+        name,
+        href: href.startsWith('/contact/') ? buildContactUrl(href, { topic: 'Запит з меню' }) : href,
+      }))
     : fallbackLinks;
 
 const currentPage = typeof document !== 'undefined'
@@ -27,16 +32,14 @@ const slugToPath: Record<string, string> = {
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const activePath = slugToPath[currentPage] ?? '/';
+  const contactUrl = buildContactUrl('/contact/', { topic: 'Загальний запит' });
 
   return (
     <nav className="digitalize-site-nav fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          <a href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-sm">
-              <span className="text-white font-bold text-xl">D</span>
-            </div>
-            <span className="text-2xl font-heading font-bold tracking-tighter">DIGITALIZE</span>
+          <a href="/" className="flex items-center">
+            <BrandLogo />
           </a>
 
           {/* Desktop Nav */}
@@ -54,7 +57,7 @@ export default function Navbar() {
                 {link.name}
               </a>
             ))}
-            <a href="/contact/">
+            <a href={contactUrl}>
               <Button className="bg-primary hover:bg-primary/90 text-white rounded-none px-8">
                 Зв'язатися
               </Button>
@@ -88,7 +91,7 @@ export default function Navbar() {
               {link.name}
             </a>
           ))}
-          <a href="/contact/">
+          <a href={contactUrl}>
             <Button className="w-full bg-primary hover:bg-primary/90 text-white rounded-none">
               Зв'язатися
             </Button>

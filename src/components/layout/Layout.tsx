@@ -3,6 +3,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ScrollToTop from "./ScrollToTop";
 import { motion } from "motion/react";
+import CallbackWidget from "../CallbackWidget";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
@@ -19,6 +20,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </motion.div>
       </main>
       <Footer />
+      <CallbackWidget />
     </div>
   );
 }

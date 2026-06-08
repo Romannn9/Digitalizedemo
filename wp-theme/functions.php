@@ -140,6 +140,18 @@ function digitalize_enqueue_scripts() {
 }
 add_action('wp_enqueue_scripts', 'digitalize_enqueue_scripts');
 
+add_filter('script_loader_tag', function ($tag, $handle, $src) {
+    if ($handle !== 'digitalize-app') {
+        return $tag;
+    }
+
+    return sprintf(
+        '<script type="module" src="%s" id="%s-js"></script>' . "\n",
+        esc_url($src),
+        esc_attr($handle)
+    );
+}, 10, 3);
+
 // ACF Options Page
 if (function_exists('acf_add_options_page')) {
     acf_add_options_page([

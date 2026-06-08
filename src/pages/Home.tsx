@@ -4,6 +4,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "motion/react";
 import { ArrowRight, CheckCircle2, BarChart3, Target, Zap, Users, ShieldCheck, MessageSquare } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
+import PageHeroBackground from "@/src/components/PageHeroBackground";
+import { buildContactUrl } from "@/src/lib/contact";
 
 const acf = typeof window !== 'undefined' ? (window.wpAcf ?? {}) : {};
 const f = (key: string, fallback: any) => {
@@ -22,6 +24,13 @@ const iconMap: Record<string, React.ReactNode> = {
   Users:     <Users     className="w-10 h-10 text-primary" />,
 };
 
+const clientAvatars = [
+  "https://randomuser.me/api/portraits/men/46.jpg",
+  "https://randomuser.me/api/portraits/women/65.jpg",
+  "https://randomuser.me/api/portraits/men/22.jpg",
+  "https://randomuser.me/api/portraits/women/79.jpg",
+];
+
 export default function Home() {
   // Hero
   const heroBadge          = f('hero_badge',            'Top Digital Agency 2026');
@@ -30,7 +39,7 @@ export default function Home() {
   const heroLine3          = f('hero_title_line3',      'ЧЕРЕЗ ДАНІ');
   const heroSubtitle       = f('hero_subtitle',         'Digitalize — це не просто реклама. Це стратегія, яка приносить ROI 300%+ та перетворює кліків на лояльних клієнтів.');
   const heroCta1Text       = f('hero_cta_primary',      'Отримати стратегію');
-  const heroCta1Url        = f('hero_cta_primary_url',  '/contact/');
+  const heroCta1Url        = buildContactUrl(f('hero_cta_primary_url', '/contact/'), { topic: 'Запит з головної' });
   const heroCta2Text       = f('hero_cta_secondary',    'Наші кейси');
   const heroCta2Url        = f('hero_cta_secondary_url','/cases/');
 
@@ -96,7 +105,7 @@ export default function Home() {
   const ctaTitle     = f('cta_title',      'ГОТОВІ ДО ВИБУХОВОГО РОСТУ?');
   const ctaSubtitle  = f('cta_subtitle',   'Залиште заявку сьогодні та отримайте безкоштовний аудит вашої рекламної стратегії вартістю $500.');
   const ctaButton    = f('cta_button',     'Хочу аудит');
-  const ctaButtonUrl = f('cta_button_url', '/contact/');
+  const ctaButtonUrl = buildContactUrl(f('cta_button_url', '/contact/'), { topic: 'Запит на аудит з головної' });
 
   // FAQ
   const faqTitle = f('faq_title', 'ЧАСТІ ЗАПИТАННЯ');
@@ -117,7 +126,7 @@ export default function Home() {
 
       {/* 1. Hero */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-brand-black text-white">
-        <div className="absolute inset-0 bg-grid-white/10 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
+        <PageHeroBackground />
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px]" />
 
@@ -296,8 +305,8 @@ export default function Home() {
               <p className="text-lg text-gray-600 mb-8">{testimonialsSubtitle}</p>
               <div className="flex space-x-4">
                 <div className="flex -space-x-2">
-                  {[1,2,3,4].map(i => (
-                    <img key={i} src={`https://i.pravatar.cc/100?img=${i+10}`} className="w-12 h-12 rounded-full border-2 border-white" referrerPolicy="no-referrer" />
+                  {clientAvatars.map((avatar, i) => (
+                    <img key={avatar} src={avatar} alt={`Client ${i + 1}`} className="w-12 h-12 rounded-full border-2 border-white object-cover" referrerPolicy="no-referrer" />
                   ))}
                 </div>
                 <div className="text-sm font-bold">
