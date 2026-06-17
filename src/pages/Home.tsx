@@ -219,7 +219,7 @@ export default function Home() {
               <motion.div key={i} whileHover={{ y: -10 }} className="group cursor-pointer">
                 <div className="relative overflow-hidden mb-6 aspect-video">
                   <img
-                    src={item.image}
+                    src={item.image || `https://picsum.photos/seed/agency${i + 1}/800/600`}
                     alt={item.client}
                     className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
                     referrerPolicy="no-referrer"
