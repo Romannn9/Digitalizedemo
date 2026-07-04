@@ -119,9 +119,6 @@ export default function Websites() {
 
   return (
     <div style={{ background: C.bg, color: C.ink, fontFamily: SANS, overflowX: 'hidden', WebkitFontSmoothing: 'antialiased' }}>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700&family=Sofia+Sans+Condensed:wght@600;700;800&display=swap" rel="stylesheet" />
       <style>{`
         @keyframes dzFloaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .dz-card { transition: transform .2s, box-shadow .2s, border-color .2s; }

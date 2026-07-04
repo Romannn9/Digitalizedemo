@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { Menu, X, Phone } from "lucide-react";
 import { useState } from "react";
@@ -39,7 +38,10 @@ export default function Navbar() {
   const contactUrl = buildContactUrl('/contact/', { topic: 'Загальний запит' });
 
   return (
-    <nav className="digitalize-site-nav fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <nav
+      className="digitalize-site-nav fixed top-0 left-0 right-0 z-50 backdrop-blur-[14px]"
+      style={{ background: 'rgba(250,247,242,0.85)', borderBottom: '1px solid #EBE2D6' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <a href="/" className="flex items-center">
@@ -47,37 +49,43 @@ export default function Navbar() {
           </a>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className={`text-sm font-medium transition-colors relative pb-1 ${
-                  activePath === link.href
-                    ? 'text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:rounded-full'
-                    : 'hover:text-primary'
-                }`}
-              >
-                {link.name}
-              </a>
-            ))}
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => {
+              const active = activePath === link.href;
+              return (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="relative text-sm transition-colors"
+                  style={{ color: active ? '#E31E24' : '#6E655B', fontWeight: active ? 600 : 500 }}
+                >
+                  {link.name}
+                  {active && (
+                    <span className="absolute left-0 right-0 -bottom-1.5 h-0.5 rounded-full" style={{ background: '#E31E24' }} />
+                  )}
+                </a>
+              );
+            })}
             <a
               href={`tel:${phoneHref}`}
-              className="flex items-center gap-2 text-sm font-semibold transition-colors hover:text-primary whitespace-nowrap"
+              className="flex items-center gap-2 text-sm font-semibold whitespace-nowrap"
+              style={{ color: '#1A1613' }}
             >
-              <Phone className="h-4 w-4 text-primary" />
+              <Phone className="h-4 w-4" style={{ color: '#E31E24' }} />
               {phone}
             </a>
-            <a href={contactUrl}>
-              <Button className="bg-primary hover:bg-primary/90 text-white rounded-none px-8">
-                Зв'язатися
-              </Button>
+            <a
+              href={contactUrl}
+              className="inline-flex items-center rounded-[10px] px-6 py-3 text-sm font-semibold text-white transition-colors"
+              style={{ background: '#E31E24', boxShadow: '0 8px 20px -8px rgba(227,30,36,0.55)' }}
+            >
+              Зв'язатися
             </a>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="p-2">
+            <button onClick={() => setIsOpen(!isOpen)} className="p-2" style={{ color: '#1A1613' }}>
               {isOpen ? <X /> : <Menu />}
             </button>
           </div>
@@ -89,30 +97,36 @@ export default function Navbar() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden bg-background border-b border-border px-4 pt-2 pb-6 space-y-4"
+          className="md:hidden px-4 pt-2 pb-6 space-y-4"
+          style={{ background: '#FAF7F2', borderBottom: '1px solid #EBE2D6' }}
         >
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className={`block text-lg font-medium border-l-2 pl-3 ${
-                activePath === link.href ? 'text-primary border-primary' : 'border-transparent hover:text-primary'
-              }`}
-            >
-              {link.name}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const active = activePath === link.href;
+            return (
+              <a
+                key={link.name}
+                href={link.href}
+                className="block text-lg font-medium border-l-2 pl-3"
+                style={{ color: active ? '#E31E24' : '#6E655B', borderColor: active ? '#E31E24' : 'transparent' }}
+              >
+                {link.name}
+              </a>
+            );
+          })}
           <a
             href={`tel:${phoneHref}`}
-            className="flex items-center gap-2 text-lg font-semibold transition-colors hover:text-primary"
+            className="flex items-center gap-2 text-lg font-semibold"
+            style={{ color: '#1A1613' }}
           >
-            <Phone className="h-5 w-5 text-primary" />
+            <Phone className="h-5 w-5" style={{ color: '#E31E24' }} />
             {phone}
           </a>
-          <a href={contactUrl}>
-            <Button className="w-full bg-primary hover:bg-primary/90 text-white rounded-none">
-              Зв'язатися
-            </Button>
+          <a
+            href={contactUrl}
+            className="block text-center rounded-[10px] px-6 py-3 text-base font-semibold text-white"
+            style={{ background: '#E31E24' }}
+          >
+            Зв'язатися
           </a>
         </motion.div>
       )}
