@@ -6,6 +6,7 @@ import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import Cases from './pages/Cases';
 import Services from './pages/Services';
+import Websites from './pages/Websites';
 import About from './pages/About';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
@@ -20,6 +21,7 @@ const isWP = import.meta.env.MODE === 'wp';
 function getDevPageFromPath(pathname: string) {
   const normalized = pathname.replace(/^\/Digitalizedemo\/?/, '/');
   if (normalized.startsWith('/cases/')) return 'cases';
+  if (normalized.startsWith('/websites/')) return 'websites';
   if (normalized.startsWith('/services/')) return 'services';
   if (normalized.startsWith('/about/')) return 'about';
   if (normalized.startsWith('/blog/')) return 'blog';
@@ -34,6 +36,7 @@ const page = isWP
 const pages: Record<string, React.ReactElement> = {
   home:     <Home />,
   cases:    <Cases />,
+  websites: <Websites />,
   services: <Services />,
   about:    <About />,
   blog:     <Blog />,

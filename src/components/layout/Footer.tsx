@@ -5,6 +5,7 @@ import { buildContactUrl } from "@/src/lib/contact";
 
 const fallbackFooterLinks = [
   { name: "Головна",  href: "/" },
+  { name: "Сайти",    href: "/websites/" },
   { name: "Кейси",    href: "/cases/" },
   { name: "Послуги",  href: "/services/" },
   { name: "Про нас",  href: "/about/" },

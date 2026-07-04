@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import { useState } from "react";
 import BrandLogo from "../BrandLogo";
 import { buildContactUrl } from "@/src/lib/contact";
 
 const fallbackLinks = [
   { name: "Головна",  href: "/" },
+  { name: "Сайти",    href: "/websites/" },
   { name: "Кейси",    href: "/cases/" },
   { name: "Послуги",  href: "/services/" },
   { name: "Про нас",  href: "/about/" },
@@ -26,8 +27,11 @@ const currentPage = typeof document !== 'undefined'
   : 'home';
 
 const slugToPath: Record<string, string> = {
-  home: '/', cases: '/cases/', case: '/cases/', services: '/services/', about: '/about/', blog: '/blog/', contact: '/contact/',
+  home: '/', websites: '/websites/', cases: '/cases/', case: '/cases/', services: '/services/', about: '/about/', blog: '/blog/', contact: '/contact/',
 };
+
+const phone = (typeof window !== 'undefined' ? window.wpFooter?.footer_phone : '') || '+38 (044) 123-45-67';
+const phoneHref = phone.replace(/[^\d+]/g, '');
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,6 +61,13 @@ export default function Navbar() {
                 {link.name}
               </a>
             ))}
+            <a
+              href={`tel:${phoneHref}`}
+              className="flex items-center gap-2 text-sm font-semibold transition-colors hover:text-primary whitespace-nowrap"
+            >
+              <Phone className="h-4 w-4 text-primary" />
+              {phone}
+            </a>
             <a href={contactUrl}>
               <Button className="bg-primary hover:bg-primary/90 text-white rounded-none px-8">
                 Зв'язатися
@@ -91,6 +102,13 @@ export default function Navbar() {
               {link.name}
             </a>
           ))}
+          <a
+            href={`tel:${phoneHref}`}
+            className="flex items-center gap-2 text-lg font-semibold transition-colors hover:text-primary"
+          >
+            <Phone className="h-5 w-5 text-primary" />
+            {phone}
+          </a>
           <a href={contactUrl}>
             <Button className="w-full bg-primary hover:bg-primary/90 text-white rounded-none">
               Зв'язатися
