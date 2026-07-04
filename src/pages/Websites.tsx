@@ -100,7 +100,7 @@ export default function Websites() {
 
   return (
     <div className="flex flex-col">
-      {/* 1. Hero */}
+      {/* 1. Hero — тимчасово приховано, портфоліо піднято на верх
       <section className="py-24 digitalize-page-hero text-white relative overflow-hidden">
         <PageHeroBackground />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -120,6 +120,7 @@ export default function Websites() {
           </motion.div>
         </div>
       </section>
+      */}
 
       {/* 2. Портфоліо з фільтром */}
       <section id="web-works" className="py-24 bg-gray-50 scroll-mt-24">
@@ -250,7 +251,7 @@ export default function Websites() {
                 key={i}
                 className={`p-10 border transition-all ${
                   pkg.featured
-                    ? 'bg-brand-black text-white border-brand-black shadow-2xl md:-translate-y-4'
+                    ? 'bg-white text-brand-black border-2 border-primary shadow-2xl md:-translate-y-4'
                     : 'bg-white text-brand-black border-gray-200 hover:shadow-xl'
                 }`}
               >
@@ -259,12 +260,12 @@ export default function Websites() {
                 ) : null}
                 <h3 className="text-2xl font-bold mb-2">{pkg.name}</h3>
                 <p className={`text-3xl font-bold mb-1 ${pkg.featured ? 'text-primary' : 'text-primary'}`}>{pkg.price}</p>
-                <p className={`text-sm uppercase tracking-wider mb-8 ${pkg.featured ? 'text-gray-400' : 'text-gray-500'}`}>{pkg.term}</p>
+                <p className="text-sm uppercase tracking-wider mb-8 text-gray-500">{pkg.term}</p>
                 <ul className="space-y-3 mb-10">
                   {(Array.isArray(pkg.features) ? pkg.features : String(pkg.features || '').split('\n')).map((feat: any, j: number) => (
                     <li key={j} className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                      <span className={pkg.featured ? 'text-gray-200' : 'text-gray-700'}>{typeof feat === 'string' ? feat : feat.text}</span>
+                      <span className="text-gray-700">{typeof feat === 'string' ? feat : feat.text}</span>
                     </li>
                   ))}
                 </ul>
