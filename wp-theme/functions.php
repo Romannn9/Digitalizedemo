@@ -22,6 +22,16 @@ if (is_readable($digitalize_leads_inc)) {
 }
 
 function digitalize_enqueue_scripts() {
+    // Sofia Sans / Sofia Sans Condensed — required by the site typography.
+    // Loaded here (not via CSS @import) because Lightning CSS strips a remote
+    // @import from the built stylesheet, leaving prod on the fallback font.
+    wp_enqueue_style(
+        'digitalize-fonts',
+        'https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@300;400;500;600;700&family=Sofia+Sans+Condensed:wght@500;600;700;800&display=swap',
+        [],
+        null
+    );
+
     $dist_path = get_template_directory() . '/dist';
     $dist_uri  = get_template_directory_uri() . '/dist';
 
@@ -139,6 +149,15 @@ function digitalize_enqueue_scripts() {
     wp_localize_script('digitalize-app', 'wpCasesArchive', $cases_archive);
 }
 add_action('wp_enqueue_scripts', 'digitalize_enqueue_scripts');
+
+// Preconnect to Google Fonts so Sofia Sans loads without a round-trip delay.
+add_filter('wp_resource_hints', function (array $hints, string $relation): array {
+    if ($relation === 'preconnect') {
+        $hints[] = 'https://fonts.googleapis.com';
+        $hints[] = ['href' => 'https://fonts.gstatic.com', 'crossorigin'];
+    }
+    return $hints;
+}, 10, 2);
 
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
     if ($handle !== 'digitalize-app') {

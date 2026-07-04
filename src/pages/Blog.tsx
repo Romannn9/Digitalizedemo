@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, Calendar, User, Mail, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { decodeHtml, stripHtml, formatDate } from "../utils/wp";
-import PageHeroBackground from "@/src/components/PageHeroBackground";
+import { C, SANS, COND, wrap, eyebrowStyle, h2Style, ThemeStyles } from "@/src/lib/theme";
 
 interface WpPost {
   id: number;
@@ -43,8 +42,8 @@ function getPostMeta(post: WpPost) {
 
 function PostImage({ image, title, className = '' }: { image: string; title: string; className?: string }) {
   return image
-    ? <img src={image} alt={title} className={`object-cover w-full h-full ${className}`} />
-    : <div className="w-full h-full bg-gray-800 flex items-center justify-center text-primary text-5xl font-bold">D</div>;
+    ? <img src={image} alt={title} referrerPolicy="no-referrer" className={`object-cover w-full h-full ${className}`} />
+    : <div className="w-full h-full flex items-center justify-center font-heading text-5xl font-bold" style={{ background: '#F0E6D8', color: C.border2 }}>D</div>;
 }
 
 export default function Blog() {
@@ -60,6 +59,7 @@ export default function Blog() {
   const [sliderIdx, setSliderIdx] = useState(0);
   const [search, setSearch]       = useState('');
   const [activeCategory, setActiveCategory] = useState('');
+  const [openFaq, setOpenFaq]     = useState(0);
 
   useEffect(() => {
     const apiBase = (typeof window !== 'undefined' && window.wpSite?.apiUrl) ? window.wpSite.apiUrl : '/wp-json/';
@@ -70,7 +70,6 @@ export default function Blog() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Slide groups: each slide = [featured, mini1, mini2]
   const slideGroups: WpPost[][] = [];
   for (let i = 0; i < posts.length; i += 3) {
     const g = posts.slice(i, i + 3);
@@ -78,7 +77,6 @@ export default function Blog() {
   }
   const totalSlides = slideGroups.length;
 
-  // Auto-advance
   useEffect(() => {
     if (totalSlides < 2) return;
     const t = setInterval(() => setSliderIdx(i => (i + 1) % totalSlides), 4500);
@@ -102,93 +100,69 @@ export default function Blog() {
 
   const recentPosts = posts.slice(0, 5);
 
-  return (
-    <div className="flex flex-col">
-      {/* Header */}
-      <section className="py-24 digitalize-page-hero text-white relative overflow-hidden">
-        <PageHeroBackground />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
-            <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter uppercase">
-              {f('blg_h1_line1', 'БЛОГ')} <span className="text-primary">{f('blg_h1_accent', 'DIGITALIZE')}</span>
-            </h1>
-            <p className="text-xl text-gray-400 leading-relaxed">
-              {f('blg_header_desc', 'Ділимося експертизою, кейсами та трендами світу digital-маркетингу. Тільки корисний контент для вашого бізнесу.')}
-            </p>
-          </motion.div>
-        </div>
-      </section>
+  const catBtn = (active: boolean): React.CSSProperties => ({
+    display: 'block', width: '100%', textAlign: 'left', fontSize: 15, padding: '8px 12px',
+    borderRadius: 10, cursor: 'pointer', font: 'inherit', border: 'none', transition: 'all .15s',
+    background: active ? C.redSoft : 'transparent',
+    color: active ? C.redDark : C.body, fontWeight: active ? 700 : 400,
+  });
 
-      {/* Hero Slider — окрема секція, поза чорним фоном */}
+  return (
+    <div style={{ background: C.bg, color: C.ink, fontFamily: SANS, overflowX: 'hidden', WebkitFontSmoothing: 'antialiased' }}>
+      <ThemeStyles />
+
+      {/* HERO */}
+      <header style={{ ...wrap, padding: '72px 24px 56px' }}>
+        <div style={{ maxWidth: 760 }}>
+          <div style={eyebrowStyle}>Блог</div>
+          <h1 style={{ fontFamily: COND, fontSize: 'clamp(46px, 8vw, 82px)', lineHeight: 0.9, fontWeight: 800, letterSpacing: '-0.005em', textTransform: 'uppercase', margin: '0 0 24px', color: C.ink }}>
+            {f('blg_h1_line1', 'Блог')} <span style={{ color: C.red }}>{f('blg_h1_accent', 'Digitalize')}</span>
+          </h1>
+          <p style={{ fontSize: 20, lineHeight: 1.65, color: C.body, margin: 0 }}>
+            {f('blg_header_desc', 'Ділимося експертизою, кейсами та трендами світу digital-маркетингу. Тільки корисний контент для вашого бізнесу.')}
+          </p>
+        </div>
+      </header>
+
+      {/* HERO SLIDER */}
       {!loading && slideGroups.length > 0 && (
-        <section className="bg-gray-50 pt-16 pb-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative overflow-hidden" style={{ minHeight: '480px' }}>
+        <section style={{ background: C.alt, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ ...wrap, padding: '48px 24px' }}>
+            <div style={{ position: 'relative', minHeight: 480 }}>
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={sliderIdx}
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -40 }}
-                  transition={{ duration: 0.45 }}
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-2"
-                >
-                  {/* Featured — 2/3 */}
+                <motion.div key={sliderIdx} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.45 }} className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   {featuredSlide && (() => {
                     const { image, author, category, excerpt } = getPostMeta(featuredSlide);
                     return (
-                      <a
-                        href={featuredSlide.link}
-                        className="relative group overflow-hidden lg:col-span-2"
-                        style={{ minHeight: '480px' }}
-                      >
+                      <a href={featuredSlide.link} className="relative group overflow-hidden lg:col-span-2 rounded-2xl" style={{ minHeight: 480 }}>
                         <div className="absolute inset-0">
                           <PostImage image={image} title={featuredSlide.title.rendered} className="group-hover:scale-105 transition-transform duration-700" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(26,22,19,0.88), rgba(26,22,19,0.25) 45%, transparent)' }} />
                         </div>
                         <div className="relative z-10 h-full flex flex-col justify-end p-8">
-                          {category && (
-                            <span className="inline-block bg-primary text-white text-xs font-bold uppercase tracking-widest px-3 py-1 mb-4 w-fit">
-                              {category}
-                            </span>
-                          )}
-                          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight group-hover:text-primary transition-colors">
-                            {decodeHtml(featuredSlide.title.rendered)}
-                          </h2>
-                          <p className="text-gray-300 text-sm line-clamp-2 mb-4 max-w-xl">{excerpt}</p>
-                          <div className="flex items-center gap-4 text-gray-400 text-sm">
-                            <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{formatDate(featuredSlide.date)}</span>
-                            {author && <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />{author}</span>}
+                          {category && <span className="inline-block text-white text-[13px] font-bold uppercase tracking-widest px-3 py-1 mb-4 w-fit rounded-full" style={{ background: C.red }}>{category}</span>}
+                          <h2 className="font-heading text-2xl md:text-4xl font-extrabold uppercase text-white mb-4 leading-[1.05]">{decodeHtml(featuredSlide.title.rendered)}</h2>
+                          <p className="text-[15px] line-clamp-2 mb-4 max-w-xl" style={{ color: 'rgba(255,255,255,0.82)' }}>{excerpt}</p>
+                          <div className="flex items-center gap-4 text-[14px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                            <span className="flex items-center gap-1"><Calendar className="w-4 h-4" />{formatDate(featuredSlide.date)}</span>
+                            {author && <span className="flex items-center gap-1"><User className="w-4 h-4" />{author}</span>}
                           </div>
                         </div>
                       </a>
                     );
                   })()}
-
-                  {/* Mini posts — 1/3 */}
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-3">
                     {miniSlides.map((post) => {
                       const { image, category } = getPostMeta(post);
                       return (
-                        <a
-                          key={post.id}
-                          href={post.link}
-                          className="relative group overflow-hidden flex-1"
-                          style={{ minHeight: '236px' }}
-                        >
+                        <a key={post.id} href={post.link} className="relative group overflow-hidden flex-1 rounded-2xl" style={{ minHeight: 232 }}>
                           <div className="absolute inset-0">
                             <PostImage image={image} title={post.title.rendered} className="group-hover:scale-105 transition-transform duration-700" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
+                            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(26,22,19,0.82), transparent)' }} />
                           </div>
                           <div className="relative z-10 h-full flex flex-col justify-end p-5">
-                            {category && (
-                              <span className="inline-block bg-primary text-white text-xs font-bold uppercase tracking-widest px-2 py-0.5 mb-2 w-fit">
-                                {category}
-                              </span>
-                            )}
-                            <h3 className="text-base font-bold text-white leading-snug group-hover:text-primary transition-colors">
-                              {decodeHtml(post.title.rendered)}
-                            </h3>
+                            {category && <span className="inline-block text-white text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 mb-2 w-fit rounded-full" style={{ background: C.red }}>{category}</span>}
+                            <h3 className="font-heading text-lg font-bold text-white leading-snug">{decodeHtml(post.title.rendered)}</h3>
                           </div>
                         </a>
                       );
@@ -197,31 +171,18 @@ export default function Blog() {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Controls */}
               {totalSlides > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  {/* Dots */}
+                <div className="flex items-center justify-between mt-5">
                   <div className="flex gap-2">
                     {Array.from({ length: totalSlides }).map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSliderIdx(i)}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${i === sliderIdx % totalSlides ? 'w-8 bg-primary' : 'w-4 bg-gray-300'}`}
-                      />
+                      <button key={i} onClick={() => setSliderIdx(i)} className="h-1.5 rounded-full transition-all duration-300" style={{ width: i === sliderIdx % totalSlides ? 32 : 16, background: i === sliderIdx % totalSlides ? C.red : C.border2 }} />
                     ))}
                   </div>
-                  {/* Arrows */}
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => setSliderIdx(i => (i - 1 + totalSlides) % totalSlides)}
-                      className="bg-white border border-gray-200 hover:bg-primary hover:text-white text-gray-600 w-8 h-8 flex items-center justify-center transition-colors"
-                    >
+                  <div className="flex gap-2">
+                    <button onClick={() => setSliderIdx(i => (i - 1 + totalSlides) % totalSlides)} className="w-9 h-9 flex items-center justify-center rounded-full transition-colors hover:text-white" style={{ background: '#fff', border: `1px solid ${C.border2}`, color: C.soft }}>
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => setSliderIdx(i => (i + 1) % totalSlides)}
-                      className="bg-white border border-gray-200 hover:bg-primary hover:text-white text-gray-600 w-8 h-8 flex items-center justify-center transition-colors"
-                    >
+                    <button onClick={() => setSliderIdx(i => (i + 1) % totalSlides)} className="w-9 h-9 flex items-center justify-center rounded-full transition-colors hover:text-white" style={{ background: '#fff', border: `1px solid ${C.border2}`, color: C.soft }}>
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -232,176 +193,131 @@ export default function Blog() {
         </section>
       )}
 
-      {/* Posts grid + Sidebar */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      {/* POSTS GRID + SIDEBAR */}
+      <section style={{ ...wrap, padding: '80px 24px' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="lg:col-span-2">
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="animate-pulse">
+                    <div className="aspect-video rounded-xl mb-4" style={{ background: C.alt }} />
+                    <div className="h-3 rounded mb-2 w-1/3" style={{ background: C.alt }} />
+                    <div className="h-5 rounded mb-2" style={{ background: C.alt }} />
+                    <div className="h-3 rounded w-2/3" style={{ background: C.alt }} />
+                  </div>
+                ))}
+              </div>
+            ) : gridPosts.length === 0 ? (
+              <p style={{ color: C.muted, padding: '48px 0', fontSize: 18 }}>{posts.length === 0 ? 'Поки немає публікацій.' : 'Нічого не знайдено.'}</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                {gridPosts.map((post, i) => {
+                  const { image, author, category, excerpt } = getPostMeta(post);
+                  return (
+                    <motion.article key={post.id} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="group">
+                      <a href={post.link} className="block">
+                        <div className="relative overflow-hidden mb-5 aspect-video rounded-xl" style={{ border: `1px solid ${C.border}` }}>
+                          <PostImage image={image} title={post.title.rendered} className="group-hover:scale-105 transition-transform duration-700" />
+                          {category && <span className="absolute top-3 left-3 text-white text-[12px] font-bold uppercase tracking-widest px-2 py-1 rounded-full" style={{ background: C.red }}>{category}</span>}
+                        </div>
+                        <div className="flex items-center gap-3 text-[13px] mb-3" style={{ color: C.muted }}>
+                          <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{formatDate(post.date)}</span>
+                          {author && <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />{author}</span>}
+                        </div>
+                        <h3 className="font-heading text-xl font-bold mb-3 leading-snug transition-colors group-hover:text-[#E31E24]" style={{ color: C.ink }}>{decodeHtml(post.title.rendered)}</h3>
+                        <p className="text-[15px] line-clamp-2 mb-4" style={{ color: C.body }}>{excerpt}</p>
+                      </a>
+                      <a href={post.link} className="inline-flex items-center gap-1 text-[14px] font-bold uppercase tracking-wider hover:gap-2 transition-all" style={{ color: C.red }}>
+                        Читати <ArrowRight className="w-4 h-4" />
+                      </a>
+                    </motion.article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
-            {/* Posts grid – 2/3 */}
-            <div className="lg:col-span-2">
-              {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="animate-pulse">
-                      <div className="aspect-video bg-gray-100 mb-4" />
-                      <div className="h-3 bg-gray-100 rounded mb-2 w-1/3" />
-                      <div className="h-5 bg-gray-100 rounded mb-2" />
-                      <div className="h-3 bg-gray-100 rounded w-2/3" />
-                    </div>
-                  ))}
-                </div>
-              ) : gridPosts.length === 0 ? (
-                <p className="text-gray-400 py-12">
-                  {posts.length === 0 ? 'Поки немає публікацій.' : 'Нічого не знайдено.'}
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-                  {gridPosts.map((post, i) => {
-                    const { image, author, category, excerpt } = getPostMeta(post);
+          <aside className="space-y-10">
+            <div>
+              <h4 className="text-[13px] font-bold uppercase tracking-[0.2em] mb-4" style={{ color: C.muted }}>Пошук</h4>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: C.muted }} />
+                <Input placeholder="Пошук по блогу..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 rounded-xl h-11" style={{ borderColor: C.border2, background: '#fff' }} />
+              </div>
+            </div>
+
+            {recentPosts.length > 0 && (
+              <div>
+                <h4 className="text-[13px] font-bold uppercase tracking-[0.2em] mb-4 pb-2" style={{ color: C.muted, borderBottom: `1px solid ${C.border}` }}>Останні публікації</h4>
+                <div className="space-y-4">
+                  {recentPosts.map(post => {
+                    const { image, category } = getPostMeta(post);
                     return (
-                      <motion.article
-                        key={post.id}
-                        initial={{ opacity: 0, y: 24 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: i * 0.05 }}
-                        className="group"
-                      >
-                        <a href={post.link} className="block">
-                          <div className="relative overflow-hidden mb-5 aspect-video">
-                            <PostImage image={image} title={post.title.rendered} className="group-hover:scale-105 transition-transform duration-700" />
-                            {category && (
-                              <span className="absolute top-3 left-3 bg-primary text-white text-xs font-bold uppercase tracking-widest px-2 py-0.5">
-                                {category}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-3 text-gray-400 text-xs mb-3">
-                            <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(post.date)}</span>
-                            {author && <span className="flex items-center gap-1"><User className="w-3 h-3" />{author}</span>}
-                          </div>
-                          <h3 className="text-lg font-bold mb-3 leading-snug group-hover:text-primary transition-colors">
-                            {decodeHtml(post.title.rendered)}
-                          </h3>
-                          <p className="text-gray-500 text-sm line-clamp-2 mb-4">{excerpt}</p>
-                        </a>
-                        <a
-                          href={post.link}
-                          className="inline-flex items-center text-primary text-sm font-bold hover:gap-2 gap-1 transition-all"
-                        >
-                          Читати <ArrowRight className="w-3.5 h-3.5" />
-                        </a>
-                      </motion.article>
+                      <a key={post.id} href={post.link} className="flex gap-3 group">
+                        <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-lg" style={{ background: C.alt }}>
+                          <PostImage image={image} title={post.title.rendered} className="group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          {category && <p className="text-[12px] font-bold uppercase tracking-wider mb-1" style={{ color: C.red }}>{category}</p>}
+                          <p className="text-[15px] font-semibold leading-snug line-clamp-2 transition-colors group-hover:text-[#E31E24]" style={{ color: C.ink }}>{decodeHtml(post.title.rendered)}</p>
+                          <p className="text-[13px] mt-1" style={{ color: C.muted }}>{formatDate(post.date)}</p>
+                        </div>
+                      </a>
                     );
                   })}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* Sidebar – 1/3 */}
-            <aside className="space-y-10">
-              {/* Search */}
+            {allCategories.length > 0 && (
               <div>
-                <h4 className="text-sm font-bold uppercase tracking-widest mb-4">Пошук</h4>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    placeholder="Пошук по блогу..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    className="pl-9 rounded-none border-gray-200 h-11"
-                  />
+                <h4 className="text-[13px] font-bold uppercase tracking-[0.2em] mb-4 pb-2" style={{ color: C.muted, borderBottom: `1px solid ${C.border}` }}>Категорії</h4>
+                <div className="space-y-1">
+                  <button onClick={() => setActiveCategory('')} style={catBtn(!activeCategory)}>Всі публікації</button>
+                  {allCategories.map(cat => (
+                    <button key={cat} onClick={() => setActiveCategory(cat === activeCategory ? '' : cat)} style={catBtn(activeCategory === cat)}>{cat}</button>
+                  ))}
                 </div>
               </div>
+            )}
+          </aside>
+        </div>
+      </section>
 
-              {/* Recent posts */}
-              {recentPosts.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-bold uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
-                    Останні публікації
-                  </h4>
-                  <div className="space-y-4">
-                    {recentPosts.map(post => {
-                      const { image, category } = getPostMeta(post);
-                      return (
-                        <a key={post.id} href={post.link} className="flex gap-3 group">
-                          <div className="w-16 h-16 flex-shrink-0 overflow-hidden bg-gray-100">
-                            <PostImage image={image} title={post.title.rendered} className="group-hover:scale-105 transition-transform duration-500" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            {category && <p className="text-primary text-xs font-bold uppercase tracking-wider mb-1">{category}</p>}
-                            <p className="text-sm font-semibold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                              {decodeHtml(post.title.rendered)}
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">{formatDate(post.date)}</p>
-                          </div>
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Categories */}
-              {allCategories.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-bold uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
-                    Категорії
-                  </h4>
-                  <div className="space-y-1">
-                    <button
-                      onClick={() => setActiveCategory('')}
-                      className={`block w-full text-left text-sm py-1.5 px-2 transition-colors ${!activeCategory ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 hover:text-primary'}`}
-                    >
-                      Всі публікації
-                    </button>
-                    {allCategories.map(cat => (
-                      <button
-                        key={cat}
-                        onClick={() => setActiveCategory(cat === activeCategory ? '' : cat)}
-                        className={`block w-full text-left text-sm py-1.5 px-2 transition-colors ${activeCategory === cat ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 hover:text-primary'}`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </aside>
+      {/* SUBSCRIPTION */}
+      <section style={{ ...wrap, padding: '20px 24px 96px' }}>
+        <div style={{ background: C.red, borderRadius: 26, padding: '72px 40px', textAlign: 'center', position: 'relative', overflow: 'hidden', boxShadow: '0 40px 80px -34px rgba(227,30,36,0.5)' }}>
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 15% 20%, rgba(255,255,255,0.14), transparent 40%), radial-gradient(circle at 85% 85%, rgba(0,0,0,0.12), transparent 42%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto' }}>
+            <Mail className="w-14 h-14 mx-auto mb-6" style={{ color: 'rgba(255,255,255,0.85)' }} />
+            <h2 style={{ fontFamily: COND, fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.005em', color: '#fff', margin: '0 0 16px' }}>{f('blg_sub_title', 'Підпишіться на дайджест')}</h2>
+            <p style={{ fontSize: 19, color: 'rgba(255,255,255,0.9)', margin: '0 0 32px' }}>{f('blg_sub_subtitle', 'Отримуйте кращі матеріали та ексклюзивні поради раз на тиждень.')}</p>
+            <form className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto" onSubmit={e => e.preventDefault()}>
+              <Input placeholder="Ваш Email" className="rounded-xl h-14 px-5 text-lg border-none" style={{ background: '#fff', color: C.ink }} />
+              <Button type="submit" className="rounded-xl h-14 px-9 text-lg font-bold uppercase tracking-wider hover:opacity-90" style={{ background: C.ink, color: '#fff' }}>
+                {f('blg_sub_button', 'Підписатися')}
+              </Button>
+            </form>
+            <p style={{ marginTop: 18, fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>{f('blg_sub_notice', 'Жодного спаму. Тільки користь. Відписатися можна в будь-який момент.')}</p>
           </div>
         </div>
       </section>
 
-      {/* Subscription */}
-      <section className="py-24 bg-primary text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Mail className="w-16 h-16 mx-auto mb-8 opacity-50" />
-          <h2 className="text-4xl font-bold mb-6 uppercase tracking-tighter">{f('blg_sub_title', 'ПІДПИШІТЬСЯ НА ДАЙДЖЕСТ')}</h2>
-          <p className="text-xl mb-10 opacity-90">{f('blg_sub_subtitle', 'Отримуйте кращі матеріали та ексклюзивні поради раз на тиждень.')}</p>
-          <form className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto" onSubmit={e => e.preventDefault()}>
-            <Input placeholder="Ваш Email" className="bg-white text-brand-black rounded-none h-16 px-6 text-lg border-none" />
-            <Button className="bg-brand-black text-white hover:bg-gray-900 rounded-none h-16 px-10 text-lg font-bold uppercase tracking-widest">
-              {f('blg_sub_button', 'Підписатися')}
-            </Button>
-          </form>
-          <p className="mt-6 text-sm opacity-60">{f('blg_sub_notice', 'Жодного спаму. Тільки користь. Відписатися можна в будь-який момент.')}</p>
-        </div>
-      </section>
-
-      {/* Authors */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-12 text-center uppercase tracking-widest">{f('blg_authors_title', 'НАШІ АВТОРИ')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+      {/* AUTHORS */}
+      <section style={{ background: C.alt, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ ...wrap, padding: '96px 24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div style={eyebrowStyle}>Автори</div>
+            <h2 style={h2Style}>{f('blg_authors_title', 'Наші автори')}</h2>
+          </div>
+          <div className="dz-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 24 }}>
             {authors.map((author: any, i: number) => (
-              <div key={i} className="text-center p-8 border border-gray-100">
-                {author.image
-                  ? <img src={author.image} alt={author.name} className="w-24 h-24 rounded-full mx-auto mb-6 grayscale object-cover" />
-                  : <img src={`https://i.pravatar.cc/150?img=${i + 20}`} alt={author.name} className="w-24 h-24 rounded-full mx-auto mb-6 grayscale" referrerPolicy="no-referrer" />
-                }
-                <h3 className="text-xl font-bold mb-2">{author.name}</h3>
-                <p className="text-primary text-xs font-bold uppercase tracking-widest mb-4">{author.role}</p>
-                <p className="text-gray-500">{author.bio}</p>
+              <div key={i} className="dz-card dz-svc" style={{ textAlign: 'center', padding: 34, background: '#fff', border: `1px solid ${C.border}`, borderRadius: 18 }}>
+                <img src={author.image || `https://i.pravatar.cc/150?img=${i + 20}`} alt={author.name} referrerPolicy="no-referrer" style={{ width: 96, height: 96, borderRadius: 999, margin: '0 auto 22px', objectFit: 'cover', border: `3px solid ${C.redSoftBorder}` }} />
+                <h3 style={{ fontFamily: COND, fontSize: 22, fontWeight: 700, margin: '0 0 6px', color: C.ink }}>{author.name}</h3>
+                <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: C.red, margin: '0 0 14px' }}>{author.role}</p>
+                <p style={{ fontSize: 16, lineHeight: 1.6, color: C.body, margin: 0 }}>{author.bio}</p>
               </div>
             ))}
           </div>
@@ -409,17 +325,24 @@ export default function Blog() {
       </section>
 
       {/* FAQ */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold mb-12 text-center">{f('blg_faq_title', 'ПИТАННЯ ПО БЛОГУ')}</h2>
-          <Accordion className="w-full">
-            {faqItems.map((item: any, i: number) => (
-              <AccordionItem key={i} value={`item-${i}`}>
-                <AccordionTrigger className="text-lg font-bold">{item.q}</AccordionTrigger>
-                <AccordionContent className="text-gray-600 text-lg">{item.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+      <section style={{ maxWidth: 760, margin: '0 auto', padding: '96px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div style={eyebrowStyle}>Часті питання</div>
+          <h2 style={h2Style}>{f('blg_faq_title', 'Питання по блогу')}</h2>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {faqItems.map((item: any, i: number) => {
+            const open = openFaq === i;
+            return (
+              <div key={i} style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
+                <button onClick={() => setOpenFaq(open ? -1 : i)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '24px 26px', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', font: 'inherit' }}>
+                  <span style={{ fontFamily: COND, fontSize: 19, fontWeight: 600, color: C.ink }}>{item.q}</span>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transition: 'transform .2s', transform: `rotate(${open ? 180 : 0}deg)` }}><path d="m6 9 6 6 6-6" /></svg>
+                </button>
+                {open ? <p style={{ margin: 0, padding: '0 26px 26px', fontSize: 16, lineHeight: 1.7, color: C.body }}>{item.a}</p> : null}
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>

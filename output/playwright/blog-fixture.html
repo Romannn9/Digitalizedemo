@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog fixture</title>
+    <link rel="stylesheet" href="/wp-theme/dist/assets/index-D_qTZF0J.css" />
+    <script>
+      // ---- Mock WP globals (mirrors output/playwright/case-fixture.html) ----
+      window.wpSite = { name: "Digitalize", url: "/", apiUrl: "/" };
+      window.wpAcf = {};
+      window.wpMenu = [];
+      window.wpFooterMenu = [];
+      window.wpFooter = {};
+
+      // ---- Mock blog posts served over the WP REST endpoint ----
+      const IMG = [
+        "/public/portfolio/global-import.jpg",
+        "/public/portfolio/edmarz-electric.jpg",
+        "/public/portfolio/servis-pereizd.jpg",
+      ];
+      const AUTHORS = ["Артем Волков", "Олена Кравченко", "Максим Данилюк"];
+      const CATS = ["Performance", "SEO", "Аналітика", "Брендинг", "Соцмережі"];
+      const TITLES = [
+        "Як ми знизили CPA на 41% за два місяці",
+        "SEO у 2026: що реально впливає на видачу",
+        "Google Ads: 7 помилок, що зливають бюджет",
+        "Контент-маркетинг, який приводить лідів",
+        "Атрибуція та аналітика без ілюзій",
+        "Брендинг як важіль performance-каналів",
+        "Автоворонки: від першого кліку до оплати",
+      ];
+      const EXC =
+        "Розбираємо на реальних цифрах, як стратегія впливає на банківський рахунок клієнта — без води та красивих обіцянок.";
+
+      const POSTS = TITLES.map((t, i) => ({
+        id: 100 + i,
+        title: { rendered: t },
+        excerpt: { rendered: "<p>" + EXC + "</p>" },
+        date: "2026-06-" + String(28 - i).padStart(2, "0") + "T10:00:00+03:00",
+        link: "/blog/post-" + (100 + i) + "/",
+        _embedded: {
+          "wp:featuredmedia": [{ source_url: IMG[i % IMG.length] }],
+          author: [{ name: AUTHORS[i % AUTHORS.length] }],
+          "wp:term": [[{ name: CATS[i % CATS.length] }]],
+        },
+      }));
+
+      const _fetch = window.fetch.bind(window);
+      window.fetch = (input, init) => {
+        const url = typeof input === "string" ? input : input && input.url ? input.url : "";
+        if (url.includes("wp/v2/posts")) {
+          return Promise.resolve(
+            new Response(JSON.stringify(POSTS), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            })
+          );
+        }
+        return _fetch(input, init);
+      };
+    </script>
+  </head>
+  <body>
+    <div id="root" data-page="blog"></div>
+    <script type="module" src="/wp-theme/dist/assets/index-CiAJd-VC.js"></script>
+  </body>
+</html>

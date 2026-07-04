@@ -1,73 +1,51 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { motion, AnimatePresence } from "motion/react";
-import { ArrowRight, TrendingUp, DollarSign, CheckCircle, PlayCircle } from "lucide-react";
-import PageHeroBackground from "@/src/components/PageHeroBackground";
+import React, { useState } from "react";
+import { TrendingUp, DollarSign } from "lucide-react";
 import { buildContactUrl } from "@/src/lib/contact";
+import { C, SANS, COND, wrap, eyebrowStyle, h2Style, Arrow, Check, ThemeStyles } from "@/src/lib/theme";
 
 const acf = typeof window !== 'undefined' ? (window.wpAcf ?? {}) : {};
 const f   = (key: string, fb: any) => { const v = acf[key]; return (v !== undefined && v !== null && v !== '' && v !== false) ? v : fb; };
 const rep = (key: string, fb: any[]) => { const v = acf[key]; return (Array.isArray(v) && v.length > 0) ? v : fb; };
 
 type CaseCard = {
-  id?: number;
-  title: string;
-  category: string;
-  roi: string;
-  cpa: string;
-  roas: string;
-  image: string;
-  url: string;
+  id?: number; title: string; category: string;
+  roi: string; cpa: string; roas: string; image: string; url: string;
 };
 
 export default function Cases() {
   const [activeFilter, setActiveFilter] = useState('all');
-  const h1Line1      = f('cases_h1_line1',    'НАШІ КЕЙСИ:');
-  const h1Accent     = f('cases_h1_accent',   'РЕАЛЬНІ ЦИФРИ');
-  const headerDesc   = f('cases_header_desc', 'Ми не просто показуємо красиві картинки. Ми показуємо, як наші стратегії впливають на банківський рахунок клієнта.');
+  const [openFaq, setOpenFaq] = useState(0);
+
+  const h1Line1    = f('cases_h1_line1',    'Наші кейси:');
+  const h1Accent   = f('cases_h1_accent',   'реальні цифри');
+  const headerDesc = f('cases_header_desc', 'Ми не просто показуємо красиві картинки. Ми показуємо, як наші стратегії впливають на банківський рахунок клієнта.');
 
   const wpCases = typeof window !== 'undefined' ? window.wpCasesArchive : undefined;
   const casesItems: CaseCard[] = Array.isArray(wpCases)
-    ? wpCases.map((c) => ({
-        id: c.id,
-        title: c.title || '',
-        category: c.category || '',
-        roi: c.roi || '—',
-        cpa: c.cpa || '—',
-        roas: c.roas || '—',
-        image: c.image || '',
-        url: c.url || '',
-      }))
+    ? wpCases.map((c) => ({ id: c.id, title: c.title || '', category: c.category || '', roi: c.roi || '—', cpa: c.cpa || '—', roas: c.roas || '—', image: c.image || '', url: c.url || '' }))
     : [];
 
-  const fcTitle      = f('fc_title',       'Як ми допомогли Fintech-стартапу залучити 10,000 користувачів за 3 місяці');
-  const fcProblem    = f('fc_problem',     'Висока вартість інсталу ($4.5) та низька конверсія в реєстрацію.');
-  const fcSolution   = f('fc_solution',    'Повна перебудова воронки, впровадження AI-оптимізації ставок та нові креативи.');
-  const fcStat1Val   = f('fc_stat1_val',   '10k+');   const fcStat1Label = f('fc_stat1_label', 'Користувачів');
-  const fcStat2Val   = f('fc_stat2_val',   '$1.2');   const fcStat2Label = f('fc_stat2_label', 'CPI');
-  const fcStat3Val   = f('fc_stat3_val',   '25%');    const fcStat3Label = f('fc_stat3_label', 'CR в реєстрацію');
-  const fcImage      = f('fc_image',       'https://picsum.photos/seed/fintech/600/800');
+  const fcTitle    = f('fc_title',    'Як ми допомогли Fintech-стартапу залучити 10 000 користувачів за 3 місяці');
+  const fcProblem  = f('fc_problem',  'Висока вартість інсталу ($4.5) та низька конверсія в реєстрацію.');
+  const fcSolution = f('fc_solution', 'Повна перебудова воронки, впровадження AI-оптимізації ставок та нові креативи.');
+  const fcStats = [
+    [f('fc_stat1_val', '10k+'), f('fc_stat1_label', 'Користувачів')],
+    [f('fc_stat2_val', '$1.2'), f('fc_stat2_label', 'CPI')],
+    [f('fc_stat3_val', '25%'),  f('fc_stat3_label', 'CR в реєстрацію')],
+  ];
+  const fcImage = f('fc_image', 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&h=800&fit=crop');
 
-  const videoTitle    = f('video_title',    'ВІДЕО-ВІДГУКИ КЛІЄНТІВ');
-  const videoSubtitle = f('video_subtitle', 'Послухайте тих, хто вже пройшов шлях до успіху з нами.');
-  const videos = rep('videos', [
-    { image: 'https://picsum.photos/seed/video1/600/400', author: 'Олексій, засновник BrandX',    quote: 'Digitalize змінили наше уявлення про маркетинг', url: '' },
-    { image: 'https://picsum.photos/seed/video2/600/400', author: 'Марія, CEO FashionHub',         quote: 'Кращі результати за всю історію компанії', url: '' },
-    { image: 'https://picsum.photos/seed/video3/600/400', author: 'Дмитро, засновник TechStart',  quote: 'ROI 400% вже в перший місяць роботи', url: '' },
-  ]);
-
-  const ctaTitle     = f('cases_cta_title',      'ХОЧЕТЕ ТАКІ Ж РЕЗУЛЬТАТИ?');
-  const ctaSubtitle  = f('cases_cta_subtitle',   'Ми готові розробити для вас індивідуальну стратегію росту. Перша консультація — безкоштовно.');
-  const ctaButton    = f('cases_cta_button',     'Обговорити проєкт');
+  const ctaTitle     = f('cases_cta_title',    'Хочете такі ж результати?');
+  const ctaSubtitle  = f('cases_cta_subtitle', 'Ми готові розробити для вас індивідуальну стратегію росту. Перша консультація — безкоштовно.');
+  const ctaButton    = f('cases_cta_button',   'Обговорити проєкт');
   const ctaButtonUrl = buildContactUrl(f('cases_cta_button_url', '/contact/'), { topic: 'Обговорення кейсу' });
 
-  const whyTitle = f('why_title', 'ЧОМУ ОБИРАЮТЬ DIGITALIZE');
+  const whyTitle = f('why_title', 'Чому обирають Digitalize');
   const whyItems = rep('why_items', [
-    { title: 'Прозорість', desc: 'Ви бачите кожну витрачену гривню в реальному часі.' },
+    { title: 'Прозорість',   desc: 'Ви бачите кожну витрачену гривню в реальному часі.' },
     { title: 'Експертність', desc: 'Команда з досвідом у 50+ різних нішах бізнесу.' },
-    { title: 'Технології', desc: 'Використовуємо власні AI-рішення для аналітики.' },
-    { title: 'Швидкість', desc: 'Реагуємо на зміни ринку миттєво.' },
+    { title: 'Технології',   desc: 'Використовуємо власні AI-рішення для аналітики.' },
+    { title: 'Швидкість',    desc: 'Реагуємо на зміни ринку миттєво.' },
   ]);
   const achieveTitle = f('achieve_title', 'Наші досягнення');
   const achievements = rep('achievements', [
@@ -76,227 +54,177 @@ export default function Cases() {
     { value: '95%',   label: 'Клієнтів залишаються з нами назавжди' },
   ]);
 
-  const processTitle = f('cases_process_title', 'ШЛЯХ ДО ВАШОГО УСПІХУ');
+  const processTitle = f('cases_process_title', 'Шлях до вашого успіху');
   const processSteps = rep('cases_process_steps', [
-    { step: '01', title: 'Занурення',       desc: 'Вивчаємо ваш продукт, конкурентів та цільову аудиторію.' },
-    { step: '02', title: 'Гіпотези',        desc: 'Формуємо список рекламних гіпотез та креативних підходів.' },
-    { step: '03', title: 'Масштабування',   desc: "Знаходимо робочі зв'язки та збільшуємо бюджет для максимізації прибутку." },
+    { step: '01', title: 'Занурення',     desc: 'Вивчаємо ваш продукт, конкурентів та цільову аудиторію.' },
+    { step: '02', title: 'Гіпотези',      desc: 'Формуємо список рекламних гіпотез та креативних підходів.' },
+    { step: '03', title: 'Масштабування', desc: "Знаходимо робочі зв'язки та збільшуємо бюджет для максимізації прибутку." },
   ]);
 
-  const faqTitle = f('cases_faq_title', 'ПИТАННЯ ПО КЕЙСАХ');
+  const faqTitle = f('cases_faq_title', 'Питання по кейсах');
   const faqItems = rep('cases_faq_items', [
     { q: 'Чи всі ваші кейси справжні?',                        a: 'Так, за кожним кейсом стоїть реальний бізнес та підтверджені дані з рекламних кабінетів.' },
     { q: 'Чому деякі назви компаній приховані?',               a: 'Деякі клієнти підписують NDA, що забороняє публічне розголошення назви бренду.' },
     { q: 'Чи можете ви повторити результат для мого бізнесу?', a: 'Кожен бізнес унікальний, але ми використовуємо перевірені методології, які працюють у більшості ніш.' },
   ]);
 
-  return (
-    <div className="flex flex-col">
-      {/* 1. Header */}
-      <section className="py-24 digitalize-page-hero text-white relative overflow-hidden">
-        <PageHeroBackground />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
-            <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter">
-              {h1Line1} <br /> <span className="text-primary">{h1Accent}</span>
-            </h1>
-            <p className="text-xl text-gray-400 leading-relaxed">{headerDesc}</p>
-          </motion.div>
-        </div>
-      </section>
+  const categories = ['all', ...Array.from(new Set(casesItems.map((c) => c.category).filter(Boolean)))];
+  const filtered = activeFilter === 'all' ? casesItems : casesItems.filter((c) => c.category === activeFilter);
 
-      {/* 2. Filter + grid (лише CPT; після деплою зайди в wp-admin один раз — міграція з репітеру) */}
+  return (
+    <div style={{ background: C.bg, color: C.ink, fontFamily: SANS, overflowX: 'hidden', WebkitFontSmoothing: 'antialiased' }}>
+      <ThemeStyles />
+
+      {/* HERO */}
+      <header style={{ ...wrap, padding: '72px 24px 72px' }}>
+        <div style={{ maxWidth: 760 }}>
+          <div style={eyebrowStyle}>Портфоліо</div>
+          <h1 style={{ fontFamily: COND, fontSize: 'clamp(46px, 8vw, 82px)', lineHeight: 0.9, fontWeight: 800, letterSpacing: '-0.005em', textTransform: 'uppercase', margin: '0 0 24px', color: C.ink }}>
+            {h1Line1} <span style={{ color: C.red }}>{h1Accent}</span>
+          </h1>
+          <p style={{ fontSize: 20, lineHeight: 1.65, color: C.body, margin: 0 }}>{headerDesc}</p>
+        </div>
+      </header>
+
+      {/* CASES GRID / EMPTY */}
       {casesItems.length === 0 ? (
-        <section className="py-24 bg-white border-b border-gray-100">
-          <div className="max-w-2xl mx-auto px-4 text-center text-gray-600 text-lg leading-relaxed">
-            <p className="font-medium text-brand-black">Наразі немає опублікованих кейсів у розділі «Кейси».</p>
-            <p className="mt-4 text-base">
-              У кабінеті WordPress відкрий меню <strong>Кейси</strong> → додай записи та опублікуй їх. Категорії — у блоці «Категорії кейсів» (Target, Context, SMM, SEO).
-            </p>
-            <p className="mt-4 text-sm text-gray-400">
-              Якщо щойно оновили тему по FTP: один раз зайди в адмінку (під адміністратором) — підтягнуться старі дані з репітеру, якщо вони ще були на сторінці «Кейси».
+        <section style={{ ...wrap, padding: '0 24px 80px' }}>
+          <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center', background: '#fff', border: `1px solid ${C.border}`, borderRadius: 20, padding: '48px 40px' }}>
+            <p style={{ fontFamily: COND, fontSize: 22, fontWeight: 700, color: C.ink, margin: '0 0 14px' }}>Наразі немає опублікованих кейсів.</p>
+            <p style={{ fontSize: 16, lineHeight: 1.7, color: C.body, margin: 0 }}>
+              У кабінеті WordPress відкрий меню <strong style={{ color: C.ink }}>Кейси</strong> → додай записи та опублікуй їх. Категорії — у блоці «Категорії кейсів» (Target, Context, SMM, SEO).
             </p>
           </div>
         </section>
-      ) : (() => {
-        const categories = ['all', ...Array.from(new Set(casesItems.map((c: CaseCard) => c.category).filter(Boolean)))];
-        const filtered = activeFilter === 'all' ? casesItems : casesItems.filter((c: CaseCard) => c.category === activeFilter);
-        return (
-          <>
-            <section className="py-8 bg-white border-b border-gray-100 sticky top-20 z-40">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-wrap gap-3">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setActiveFilter(cat)}
-                      className={`px-6 py-2.5 text-sm font-bold uppercase tracking-wider border transition-all ${
-                        activeFilter === cat
-                          ? 'bg-primary text-white border-primary'
-                          : 'bg-white text-brand-black border-gray-200 hover:border-primary hover:text-primary'
-                      }`}
-                    >
-                      {cat === 'all' ? 'Всі проєкти' : cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* 3. Cases Grid */}
-            <section className="py-24 bg-white">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {filtered.length === 0 ? (
-                  <p className="text-center text-gray-400 py-20 text-xl">Немає кейсів у цій категорії.</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-                    <AnimatePresence mode="popLayout">
-                      {filtered.map((item: CaseCard, i: number) => {
-                        const cardKey = item.id != null ? `cpt-${item.id}` : `${item.title}-${item.category}-${i}`;
-                        const inner = (
-                          <>
-                            <div className="relative overflow-hidden mb-8 aspect-[4/3]">
-                              {item.image ? (
-                                <img src={item.image} alt={item.title} className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" />
-                              ) : (
-                                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300 text-6xl font-bold">D</div>
-                              )}
-                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                                <div className="flex justify-between text-white">
-                                  <div className="text-center"><p className="text-xs uppercase opacity-60">ROI</p><p className="text-xl font-bold">{item.roi}</p></div>
-                                  <div className="text-center"><p className="text-xs uppercase opacity-60">CPA</p><p className="text-xl font-bold">{item.cpa}</p></div>
-                                  <div className="text-center"><p className="text-xs uppercase opacity-60">ROAS</p><p className="text-xl font-bold">{item.roas}</p></div>
-                                </div>
-                              </div>
+      ) : (
+        <section style={{ borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, background: C.alt }}>
+          <div style={{ ...wrap, padding: '48px 24px 96px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 48 }}>
+              {categories.map((cat) => {
+                const active = activeFilter === cat;
+                return (
+                  <button key={cat} onClick={() => setActiveFilter(cat)} style={{ padding: '11px 22px', fontSize: 14, fontWeight: 600, borderRadius: 999, cursor: 'pointer', font: 'inherit', transition: 'all .15s', ...(active ? { background: C.red, color: '#fff', border: `1px solid ${C.red}`, boxShadow: '0 10px 22px -10px rgba(227,30,36,0.55)' } : { background: '#fff', color: C.soft, border: `1px solid ${C.border2}` }) }}>
+                    {cat === 'all' ? 'Всі проєкти' : cat}
+                  </button>
+                );
+              })}
+            </div>
+            {filtered.length === 0 ? (
+              <p style={{ textAlign: 'center', color: C.muted, padding: '60px 0', fontSize: 18 }}>Немає кейсів у цій категорії.</p>
+            ) : (
+              <div className="dz-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 30 }}>
+                {filtered.map((item, i) => {
+                  const inner = (
+                    <>
+                      <div style={{ position: 'relative', aspectRatio: '4 / 3', overflow: 'hidden' }}>
+                        {item.image
+                          ? <img src={item.image} alt={item.title} referrerPolicy="no-referrer" style={{ objectFit: 'cover', width: '100%', height: '100%', display: 'block', transition: 'transform .6s' }} />
+                          : <div style={{ width: '100%', height: '100%', background: 'repeating-linear-gradient(135deg,#F5EFE5,#F5EFE5 12px,#F0E8DA 12px,#F0E8DA 24px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: COND, fontSize: 40, fontWeight: 700, color: C.border2 }}>D</div>}
+                        {item.category ? <span style={{ position: 'absolute', top: 14, left: 14, background: 'rgba(255,255,255,0.95)', color: C.ink, fontSize: 13, fontWeight: 700, padding: '6px 12px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{item.category}</span> : null}
+                      </div>
+                      <div style={{ padding: 26 }}>
+                        <h3 style={{ fontFamily: COND, fontSize: 26, fontWeight: 700, margin: '0 0 16px', color: C.ink, lineHeight: 1.15 }}>{item.title}</h3>
+                        <div style={{ display: 'flex', gap: 24, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
+                          {[['ROI', item.roi], ['CPA', item.cpa], ['ROAS', item.roas]].map(([k, v]) => (
+                            <div key={k}>
+                              <div style={{ fontSize: 13, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{k}</div>
+                              <div style={{ fontFamily: COND, fontSize: 22, fontWeight: 700, color: C.red }}>{v}</div>
                             </div>
-                            <div className="flex items-center space-x-2 text-primary text-sm font-bold uppercase tracking-widest mb-4">
-                              <span className="w-8 h-0.5 bg-primary" /><span>{item.category || 'Кейс'}</span>
-                            </div>
-                            <h3 className="text-3xl font-bold mb-4 group-hover:text-primary transition-colors leading-tight">{item.title}</h3>
-                            <span className="inline-flex items-center text-lg font-bold text-primary group-hover:translate-x-2 transition-transform">
-                              Дивитися деталі <ArrowRight className="ml-2 w-5 h-5" />
-                            </span>
-                          </>
-                        );
-                        const shell = item.url ? (
-                          <a href={item.url} className="group block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm">
-                            {inner}
-                          </a>
-                        ) : (
-                          <div className="group block cursor-default">{inner}</div>
-                        );
-                        return (
-                          <motion.div
-                            key={cardKey}
-                            layout
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ duration: 0.3, delay: i * 0.05 }}
-                          >
-                            {shell}
-                          </motion.div>
-                        );
-                      })}
-                    </AnimatePresence>
-                  </div>
-                )}
+                          ))}
+                        </div>
+                        {item.url ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 20, fontSize: 14, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: C.red }}>
+                            Дивитися деталі <Arrow s={16} />
+                          </span>
+                        ) : null}
+                      </div>
+                    </>
+                  );
+                  const cardStyle: React.CSSProperties = { display: 'block', background: '#fff', border: `1px solid ${C.border}`, borderRadius: 18, overflow: 'hidden', boxShadow: '0 18px 40px -28px rgba(60,45,30,0.35)', textDecoration: 'none', color: 'inherit' };
+                  const key = item.id != null ? `cpt-${item.id}` : `${item.title}-${i}`;
+                  return item.url
+                    ? <a key={key} href={item.url} className="dz-card dz-work" style={cardStyle}>{inner}</a>
+                    : <div key={key} className="dz-card dz-work" style={cardStyle}>{inner}</div>;
+                })}
               </div>
-            </section>
-          </>
-        );
-      })()}
+            )}
+          </div>
+        </section>
+      )}
 
-      {/* 4. Featured Case */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white p-8 md:p-16 shadow-xl border border-gray-100">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div>
-                <h2 className="text-4xl font-bold mb-8">{fcTitle}</h2>
-                <div className="space-y-6 mb-10">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-10 h-10 bg-primary/10 flex items-center justify-center text-primary rounded-full shrink-0"><TrendingUp className="w-5 h-5" /></div>
-                    <div><p className="font-bold">Проблема</p><p className="text-gray-600">{fcProblem}</p></div>
+      {/* FEATURED CASE */}
+      <section style={{ ...wrap, padding: '96px 24px' }}>
+        <div style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 24, padding: 'clamp(28px, 5vw, 64px)', boxShadow: '0 30px 70px -40px rgba(60,45,30,0.4)' }}>
+          <div className="dz-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'center' }}>
+            <div>
+              <div style={eyebrowStyle}>Головний кейс</div>
+              <h2 style={{ fontFamily: COND, fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.005em', lineHeight: 1.05, margin: '0 0 28px', color: C.ink }}>{fcTitle}</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 32 }}>
+                {[[<TrendingUp style={{ width: 20, height: 20, color: C.red }} />, 'Проблема', fcProblem], [<DollarSign style={{ width: 20, height: 20, color: C.red }} />, 'Рішення', fcSolution]].map(([icon, title, text], idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: C.redSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{icon as React.ReactNode}</div>
+                    <div>
+                      <p style={{ fontFamily: COND, fontSize: 18, fontWeight: 700, color: C.ink, margin: '0 0 4px' }}>{title as string}</p>
+                      <p style={{ fontSize: 16, lineHeight: 1.6, color: C.body, margin: 0 }}>{text as string}</p>
+                    </div>
                   </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="w-10 h-10 bg-primary/10 flex items-center justify-center text-primary rounded-full shrink-0"><DollarSign className="w-5 h-5" /></div>
-                    <div><p className="font-bold">Рішення</p><p className="text-gray-600">{fcSolution}</p></div>
+                ))}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 18, paddingTop: 28, borderTop: `1px solid ${C.border}` }}>
+                {fcStats.map(([v, l], idx) => (
+                  <div key={idx}>
+                    <p style={{ fontFamily: COND, fontSize: 32, fontWeight: 800, color: C.red, margin: 0 }}>{v}</p>
+                    <p style={{ fontSize: 14, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '2px 0 0' }}>{l}</p>
                   </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4 border-t border-gray-100 pt-8">
-                  <div><p className="text-3xl font-bold text-primary">{fcStat1Val}</p><p className="text-sm text-gray-500 uppercase">{fcStat1Label}</p></div>
-                  <div><p className="text-3xl font-bold text-primary">{fcStat2Val}</p><p className="text-sm text-gray-500 uppercase">{fcStat2Label}</p></div>
-                  <div><p className="text-3xl font-bold text-primary">{fcStat3Val}</p><p className="text-sm text-gray-500 uppercase">{fcStat3Label}</p></div>
-                </div>
+                ))}
               </div>
-              <div className="relative">
-                <img src={fcImage} alt="Featured Case" className="rounded-sm shadow-2xl" referrerPolicy="no-referrer" />
-              </div>
+            </div>
+            <div>
+              <img src={fcImage} alt="Головний кейс" referrerPolicy="no-referrer" style={{ width: '100%', borderRadius: 18, display: 'block', border: `1px solid ${C.border}`, boxShadow: '0 30px 60px -30px rgba(60,45,30,0.4)' }} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. Video */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6">{videoTitle}</h2>
-            <p className="text-xl text-gray-600">{videoSubtitle}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {videos.map((v: any, i: number) => (
-              <div key={i} className="relative group cursor-pointer overflow-hidden rounded-sm">
-                <img src={v.image} alt="Video" className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer" />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <PlayCircle className="w-16 h-16 text-white opacity-80 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
-                  <p className="font-bold">{v.author}</p>
-                  <p className="text-sm opacity-80">"{v.quote}"</p>
-                </div>
-              </div>
-            ))}
+      {/* CTA */}
+      <section style={{ ...wrap, padding: '96px 24px' }}>
+        <div style={{ background: C.red, borderRadius: 26, padding: '80px 40px', textAlign: 'center', position: 'relative', overflow: 'hidden', boxShadow: '0 40px 80px -34px rgba(227,30,36,0.5)' }}>
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 15% 20%, rgba(255,255,255,0.14), transparent 40%), radial-gradient(circle at 85% 85%, rgba(0,0,0,0.12), transparent 42%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <h2 style={{ fontFamily: COND, fontSize: 'clamp(36px, 6vw, 62px)', fontWeight: 800, letterSpacing: '-0.005em', textTransform: 'uppercase', margin: '0 0 20px', color: '#fff' }}>{ctaTitle}</h2>
+            <p style={{ fontSize: 20, lineHeight: 1.6, color: 'rgba(255,255,255,0.9)', maxWidth: 640, margin: '0 auto 40px' }}>{ctaSubtitle}</p>
+            <a href={ctaButtonUrl} style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: '#fff', color: C.red, fontSize: 17, fontWeight: 700, padding: '19px 40px', borderRadius: 13, textDecoration: 'none', boxShadow: '0 20px 40px -14px rgba(0,0,0,0.3)' }}>
+              {ctaButton} <Arrow s={19} />
+            </a>
           </div>
         </div>
       </section>
 
-      {/* 6. CTA */}
-      <section className="py-24 bg-primary text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter">{ctaTitle}</h2>
-          <p className="text-xl md:text-2xl mb-12 opacity-90 max-w-3xl mx-auto">{ctaSubtitle}</p>
-          <a href={ctaButtonUrl}>
-            <Button size="lg" className="bg-white text-primary hover:bg-gray-100 text-xl px-12 py-8 rounded-none font-bold uppercase tracking-widest">{ctaButton}</Button>
-          </a>
-        </div>
-      </section>
-
-      {/* 7. Why us */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+      {/* WHY US + ACHIEVEMENTS */}
+      <section style={{ background: C.alt, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ ...wrap, padding: '96px 24px' }}>
+          <div className="dz-grid-2" style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 56, alignItems: 'center' }}>
             <div>
-              <h2 className="text-4xl font-bold mb-12">{whyTitle}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div style={eyebrowStyle}>Наші переваги</div>
+              <h2 style={{ ...h2Style, marginBottom: 40 }}>{whyTitle}</h2>
+              <div className="dz-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }}>
                 {whyItems.map((item: any, i: number) => (
                   <div key={i}>
-                    <div className="flex items-center space-x-2 text-primary mb-4">
-                      <CheckCircle className="w-6 h-6" /><h4 className="font-bold text-xl">{item.title}</h4>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                      <Check s={20} /><h4 style={{ fontFamily: COND, fontSize: 20, fontWeight: 700, color: C.ink, margin: 0 }}>{item.title}</h4>
                     </div>
-                    <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+                    <p style={{ fontSize: 16, lineHeight: 1.6, color: C.body, margin: 0 }}>{item.desc}</p>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-brand-black p-12 text-white">
-              <h3 className="text-3xl font-bold mb-8">{achieveTitle}</h3>
-              <div className="space-y-8">
+            <div style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 22, padding: '44px 40px', boxShadow: '0 30px 60px -34px rgba(60,45,30,0.4)' }}>
+              <h3 style={{ fontFamily: COND, fontSize: 26, fontWeight: 700, color: C.ink, margin: '0 0 28px' }}>{achieveTitle}</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
                 {achievements.map((a: any, i: number) => (
                   <div key={i}>
-                    <p className="text-5xl font-bold text-primary mb-2">{a.value}</p>
-                    <p className="text-gray-400">{a.label}</p>
+                    <p style={{ fontFamily: COND, fontSize: 46, fontWeight: 800, color: C.red, margin: 0, lineHeight: 1 }}>{a.value}</p>
+                    <p style={{ fontSize: 16, color: C.body, margin: '6px 0 0' }}>{a.label}</p>
                   </div>
                 ))}
               </div>
@@ -305,36 +233,44 @@ export default function Cases() {
         </div>
       </section>
 
-      {/* 8. Process */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold mb-16 text-center uppercase tracking-tighter">{processTitle}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {processSteps.map((item: any, i: number) => (
-              <div key={i} className="relative p-10 bg-white shadow-sm hover:shadow-xl transition-all">
-                <span className="text-8xl font-bold text-gray-100 absolute top-4 right-4 z-0 leading-none">{item.step}</span>
-                <div className="relative z-10">
-                  <h3 className="text-2xl font-bold mb-6">{item.title}</h3>
-                  <p className="text-gray-600 text-lg">{item.desc}</p>
-                </div>
+      {/* PROCESS */}
+      <section style={{ ...wrap, padding: '96px 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 56 }}>
+          <div style={eyebrowStyle}>Процес</div>
+          <h2 style={h2Style}>{processTitle}</h2>
+        </div>
+        <div className="dz-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 22 }}>
+          {processSteps.map((item: any, i: number) => (
+            <div key={i} style={{ position: 'relative', background: '#fff', border: `1px solid ${C.border}`, borderRadius: 18, padding: '32px 28px', overflow: 'hidden' }}>
+              <span style={{ position: 'absolute', top: 8, right: 14, fontFamily: COND, fontSize: 84, fontWeight: 700, color: C.alt, lineHeight: 1, zIndex: 0 }}>{item.step}</span>
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <h3 style={{ fontFamily: COND, fontSize: 22, fontWeight: 700, margin: '0 0 12px', color: C.ink }}>{item.title}</h3>
+                <p style={{ fontSize: 16, lineHeight: 1.6, color: C.body, margin: 0 }}>{item.desc}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* 9. FAQ */}
-      <section className="py-24 bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold mb-12 text-center">{faqTitle}</h2>
-          <Accordion className="w-full">
-            {faqItems.map((item: any, i: number) => (
-              <AccordionItem key={i} value={`item-${i}`}>
-                <AccordionTrigger className="text-lg font-bold">{item.q}</AccordionTrigger>
-                <AccordionContent className="text-gray-600 text-lg">{item.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+      {/* FAQ */}
+      <section style={{ maxWidth: 760, margin: '0 auto', padding: '20px 24px 96px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div style={eyebrowStyle}>Часті питання</div>
+          <h2 style={h2Style}>{faqTitle}</h2>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {faqItems.map((item: any, i: number) => {
+            const open = openFaq === i;
+            return (
+              <div key={i} style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
+                <button onClick={() => setOpenFaq(open ? -1 : i)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '24px 26px', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', font: 'inherit' }}>
+                  <span style={{ fontFamily: COND, fontSize: 19, fontWeight: 600, color: C.ink }}>{item.q}</span>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.red} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transition: 'transform .2s', transform: `rotate(${open ? 180 : 0}deg)` }}><path d="m6 9 6 6 6-6" /></svg>
+                </button>
+                {open ? <p style={{ margin: 0, padding: '0 26px 26px', fontSize: 16, lineHeight: 1.7, color: C.body }}>{item.a}</p> : null}
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>

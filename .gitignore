@@ -9,3 +9,7 @@ coverage/
 
 # Playwright MCP temp artifacts
 .playwright-mcp/
+
+# Playwright QA artifacts (screenshots/logs); fixtures are tracked explicitly
+output/**/*.png
+output/**/*.log

@@ -93,16 +93,16 @@ export default function ContactForm({ buttonLabel = 'Надіслати запи
 
   if (status === 'success') {
     return (
-      <Card className="p-8 md:p-12 border-none shadow-2xl rounded-none flex items-center justify-center min-h-[400px]">
+      <Card className="p-8 md:p-12 shadow-2xl rounded-2xl flex items-center justify-center min-h-[400px]" style={{ border: '1px solid #EBE2D6', background: '#fff' }}>
         <div className="text-center">
-          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: '#E31E24' }}>
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h3 className="text-2xl font-bold mb-2">Заявку надіслано!</h3>
-          <p className="text-gray-500">Наш експерт зв'яжеться з вами протягом 30 хвилин.</p>
-          <button onClick={() => setStatus('idle')} className="mt-6 text-sm text-primary hover:underline">
+          <h3 className="font-heading text-2xl font-bold mb-2" style={{ color: '#1A1613' }}>Заявку надіслано!</h3>
+          <p style={{ color: '#6E655B' }}>Наш експерт зв'яжеться з вами протягом 30 хвилин.</p>
+          <button onClick={() => setStatus('idle')} className="mt-6 text-[15px] hover:underline" style={{ color: '#E31E24' }}>
             Надіслати ще одну заявку
           </button>
         </div>
@@ -111,7 +111,7 @@ export default function ContactForm({ buttonLabel = 'Надіслати запи
   }
 
   return (
-    <Card className="p-8 md:p-12 border-none shadow-2xl rounded-none">
+    <Card className="p-8 md:p-12 shadow-2xl rounded-2xl" style={{ border: '1px solid #EBE2D6', background: '#fff' }}>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Honeypot — приховане поле, яке заповнюють лише боти */}
         <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }} aria-hidden="true">
@@ -128,27 +128,27 @@ export default function ContactForm({ buttonLabel = 'Надіслати запи
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-bold uppercase tracking-wider">Ваше ім'я *</label>
-            <Input required value={fields.name} onChange={set('name')} placeholder="Іван Іванов" className="rounded-none border-gray-300 h-12 focus:border-primary" />
+            <Input required value={fields.name} onChange={set('name')} placeholder="Іван Іванов" className="rounded-xl h-12 focus:border-primary" style={{ borderColor: '#DCD2C4', background: '#FBF9F5' }} />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-bold uppercase tracking-wider">Телефон</label>
-            <Input value={fields.phone} onChange={set('phone')} placeholder="+38 (0__) ___ __ __" className="rounded-none border-gray-300 h-12 focus:border-primary" />
+            <Input value={fields.phone} onChange={set('phone')} placeholder="+38 (0__) ___ __ __" className="rounded-xl h-12 focus:border-primary" style={{ borderColor: '#DCD2C4', background: '#FBF9F5' }} />
           </div>
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-bold uppercase tracking-wider">Email *</label>
-          <Input required type="email" value={fields.email} onChange={set('email')} placeholder="example@mail.com" className="rounded-none border-gray-300 h-12 focus:border-primary" />
+          <Input required type="email" value={fields.email} onChange={set('email')} placeholder="example@mail.com" className="rounded-xl h-12 focus:border-primary" style={{ borderColor: '#DCD2C4', background: '#FBF9F5' }} />
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-bold uppercase tracking-wider">Ваш сайт (якщо є)</label>
-          <Input value={fields.website} onChange={set('website')} placeholder="https://..." className="rounded-none border-gray-300 h-12 focus:border-primary" />
+          <Input value={fields.website} onChange={set('website')} placeholder="https://..." className="rounded-xl h-12 focus:border-primary" style={{ borderColor: '#DCD2C4', background: '#FBF9F5' }} />
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-bold uppercase tracking-wider">Повідомлення</label>
-          <Textarea value={fields.message} onChange={set('message')} placeholder="Розкажіть коротко про ваші цілі..." className="rounded-none border-gray-300 min-h-[120px] focus:border-primary" />
+          <Textarea value={fields.message} onChange={set('message')} placeholder="Розкажіть коротко про ваші цілі..." className="rounded-xl min-h-[120px] focus:border-primary" style={{ borderColor: '#DCD2C4', background: '#FBF9F5' }} />
         </div>
 
         {status === 'error' && (
@@ -158,12 +158,12 @@ export default function ContactForm({ buttonLabel = 'Надіслати запи
         <Button
           type="submit"
           disabled={status === 'loading'}
-          className="w-full bg-primary hover:bg-primary/90 text-white text-lg py-8 rounded-none font-bold uppercase tracking-widest disabled:opacity-60"
+          className="w-full bg-primary hover:bg-primary/90 text-white text-lg py-8 rounded-xl font-bold uppercase tracking-widest disabled:opacity-60"
         >
           {status === 'loading' ? 'Надсилається...' : buttonLabel}
         </Button>
 
-        <p className="text-xs text-gray-400 text-center">
+        <p className="text-[13px] text-center" style={{ color: '#9C9184' }}>
           Натискаючи кнопку, ви погоджуєтесь з політикою конфіденційності.
         </p>
       </form>

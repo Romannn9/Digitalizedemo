@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { motion } from "motion/react";
-import { ArrowLeft, Building2, Layers } from "lucide-react";
+import { ArrowLeft, Building2, CalendarDays, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { C, COND, SANS, ThemeStyles, wrap } from "@/src/lib/theme";
 import { decodeHtml, formatDate, stripHtml } from "../utils/wp";
 
 export default function CaseStudy() {
@@ -36,12 +36,15 @@ export default function CaseStudy() {
 
   if (!post) {
     return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <p className="text-gray-400 text-xl">Кейс не знайдено.</p>
+      <div style={{ minHeight: "50vh", display: "flex", alignItems: "center", justifyContent: "center", background: C.bg, color: C.body }}>
+        <p style={{ fontFamily: COND, fontSize: 28, fontWeight: 700, margin: 0 }}>Кейс не знайдено.</p>
       </div>
     );
   }
 
+  const title = decodeHtml(post.title);
+  const excerpt = post.excerpt ? stripHtml(post.excerpt) : "";
+  const categories = Array.isArray(post.categories) ? post.categories : [];
   const stats = [
     { label: "ROI", value: roi },
     { label: "CPA", value: cpa },
@@ -49,103 +52,156 @@ export default function CaseStudy() {
   ].filter((s) => s.value);
 
   return (
-    <div className="flex flex-col">
-      <section className="py-20 md:py-28 bg-brand-black text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/5" />
-        {post.image ? (
-          <div className="absolute inset-0">
-            <img src={post.image} alt="" className="w-full h-full object-cover opacity-25" />
-            <div className="absolute inset-0 bg-gradient-to-b from-brand-black/80 via-brand-black/90 to-brand-black" />
-          </div>
-        ) : null}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            {post.categories && post.categories.length > 0 ? (
-              <div className="flex flex-wrap gap-2 mb-6">
-                {post.categories.map((cat, i) => (
-                  <span
-                    key={i}
-                    className="inline-block bg-primary/25 border border-primary/40 text-primary text-xs font-bold uppercase tracking-widest px-3 py-1"
-                  >
+    <div style={{ background: C.bg, color: C.ink, fontFamily: SANS, overflowX: "hidden", WebkitFontSmoothing: "antialiased" }}>
+      <ThemeStyles />
+      <style>{`
+        .dz-case-content {
+          color: ${C.soft};
+          font-size: 18px;
+          line-height: 1.78;
+        }
+        .dz-case-content > *:first-child { margin-top: 0; }
+        .dz-case-content > *:last-child { margin-bottom: 0; }
+        .dz-case-content h2,
+        .dz-case-content h3,
+        .dz-case-content h4 {
+          font-family: ${COND};
+          color: ${C.ink};
+          font-weight: 800;
+          line-height: 1.08;
+          text-transform: uppercase;
+          margin: 48px 0 18px;
+          letter-spacing: -0.005em;
+        }
+        .dz-case-content h2 { font-size: clamp(30px, 4vw, 44px); }
+        .dz-case-content h3 { font-size: clamp(24px, 3vw, 32px); }
+        .dz-case-content p { margin: 0 0 22px; }
+        .dz-case-content a { color: ${C.red}; font-weight: 700; text-decoration: none; }
+        .dz-case-content a:hover { text-decoration: underline; }
+        .dz-case-content ul,
+        .dz-case-content ol { margin: 0 0 28px; padding-left: 26px; }
+        .dz-case-content li { margin: 10px 0; }
+        .dz-case-content blockquote {
+          margin: 36px 0;
+          padding: 24px 28px;
+          border-left: 4px solid ${C.red};
+          background: #fff;
+          color: ${C.ink};
+          box-shadow: 0 20px 45px -34px rgba(60,45,30,0.35);
+        }
+        .dz-case-content img {
+          width: 100%;
+          height: auto;
+          border-radius: 18px;
+          border: 1px solid ${C.border};
+          box-shadow: 0 24px 60px -38px rgba(60,45,30,0.45);
+          margin: 34px 0;
+        }
+        .dz-case-content figure { margin: 38px 0; }
+        .dz-case-content figcaption {
+          color: ${C.muted};
+          font-size: 14px;
+          line-height: 1.5;
+          margin-top: 10px;
+        }
+        .dz-case-hero-body {
+          display: grid;
+          grid-template-columns: 0.95fr 1.05fr;
+          gap: 54px;
+          align-items: center;
+        }
+        .dz-case-meta {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 12px;
+        }
+        .dz-case-stats {
+          display: grid;
+          gap: 14px;
+        }
+        @media (max-width: 820px) {
+          .dz-case-hero-body { grid-template-columns: 1fr !important; gap: 34px !important; }
+          .dz-case-meta { grid-template-columns: 1fr; }
+          .dz-case-stats { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+
+      <header style={{ borderBottom: `1px solid ${C.border}`, background: `linear-gradient(180deg, ${C.alt} 0%, ${C.bg} 100%)` }}>
+        <div style={{ ...wrap, padding: "72px 24px 58px" }}>
+          <div>
+            {categories.length > 0 ? (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 18 }}>
+                {categories.map((cat, i) => (
+                  <span key={i} style={{ border: `1px solid ${C.redSoftBorder}`, background: C.redSoft, color: C.redDark, borderRadius: 999, padding: "7px 13px", fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em" }}>
                     {decodeHtml(cat)}
                   </span>
                 ))}
               </div>
             ) : null}
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight leading-tight">
-              {decodeHtml(post.title)}
+            <h1 style={{ fontFamily: COND, fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 0.98, fontWeight: 800, letterSpacing: "-0.005em", textTransform: "uppercase", margin: "0 0 30px", color: C.ink, maxWidth: 980 }}>
+              {title}
             </h1>
-            {(client || industry) && (
-              <div className="flex flex-wrap gap-6 text-gray-300 text-sm mb-8">
-                {client ? (
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-primary shrink-0" />
-                    <span>{decodeHtml(client)}</span>
-                  </div>
-                ) : null}
-                {industry ? (
-                  <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-primary shrink-0" />
-                    <span>{decodeHtml(industry)}</span>
-                  </div>
-                ) : null}
-              </div>
-            )}
-            <div className="flex flex-wrap items-center gap-6 text-gray-400 text-sm">
-              {post.date ? (
-                <span>{formatDate(post.date)}</span>
-              ) : null}
+          </div>
+
+          <div className="dz-case-hero-body">
+            <div>
+            {excerpt ? (
+              <p style={{ fontSize: 20, lineHeight: 1.62, color: C.body, maxWidth: 680, margin: "0 0 30px" }}>{excerpt}</p>
+            ) : null}
+            <div className="dz-case-meta">
+              {client ? <Meta icon={<Building2 size={18} />} label="Клієнт" value={decodeHtml(client)} /> : null}
+              {industry ? <Meta icon={<Layers size={18} />} label="Ніша" value={decodeHtml(industry)} /> : null}
+              {post.date ? <Meta icon={<CalendarDays size={18} />} label="Дата" value={formatDate(post.date)} /> : null}
             </div>
-          </motion.div>
+          </div>
+
+          {post.image ? (
+            <div style={{ position: "relative" }}>
+              <div style={{ position: "absolute", inset: "8% -3% -6% 9%", background: C.redSoft, borderRadius: 24, transform: "rotate(-2deg)" }} />
+              <img src={post.image} alt={title} style={{ position: "relative", width: "100%", aspectRatio: "4 / 3", objectFit: "cover", display: "block", borderRadius: 22, border: `1px solid ${C.border}`, boxShadow: "0 34px 80px -42px rgba(60,45,30,0.55)" }} />
+            </div>
+          ) : null}
+          </div>
         </div>
-      </section>
+      </header>
 
       {stats.length > 0 ? (
-        <section className="border-b border-border bg-muted/30">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-              {stats.map((s) => (
-                <div key={s.label} className="text-center sm:text-left">
-                  <p className="text-xs font-bold uppercase tracking-widest text-primary mb-1">{s.label}</p>
-                  <p className="text-3xl md:text-4xl font-bold text-brand-black font-heading">{s.value}</p>
-                </div>
-              ))}
-            </div>
+        <section style={{ ...wrap, padding: "34px 24px 0" }}>
+          <div className="dz-case-stats" style={{ gridTemplateColumns: `repeat(${stats.length}, minmax(0, 1fr))` }}>
+            {stats.map((s) => (
+              <div key={s.label} style={{ background: "#fff", border: `1px solid ${C.border}`, borderRadius: 16, padding: "24px 26px", boxShadow: "0 18px 40px -34px rgba(60,45,30,0.35)" }}>
+                <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.16em", color: C.muted, margin: "0 0 6px" }}>{s.label}</p>
+                <p style={{ fontFamily: COND, fontSize: "clamp(32px, 5vw, 46px)", lineHeight: 1, fontWeight: 800, color: C.red, margin: 0 }}>{s.value}</p>
+              </div>
+            ))}
           </div>
         </section>
       ) : null}
 
-      <section className="py-16 md:py-24 bg-background">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {post.image ? (
-            <div className="mb-12 -mt-4 rounded-sm overflow-hidden shadow-2xl border border-border aspect-video">
-              <img src={post.image} alt={decodeHtml(post.title)} className="w-full h-full object-cover" />
-            </div>
-          ) : null}
-          {post.excerpt ? (
-            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed mb-12 border-l-4 border-primary pl-6">
-              {stripHtml(post.excerpt)}
-            </p>
-          ) : null}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="prose prose-lg max-w-none text-foreground prose-headings:font-bold prose-headings:font-heading prose-headings:text-brand-black prose-a:text-primary prose-strong:text-brand-black"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
-          <div className="mt-16 pt-8 border-t border-border">
-            <a href="/cases/">
-              <Button
-                variant="outline"
-                className="border-brand-black text-brand-black hover:bg-brand-black hover:text-white rounded-none px-8 py-6 gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" /> Усі кейси
+      <section style={{ ...wrap, padding: "64px 24px 92px" }}>
+        <article>
+          <div className="dz-case-content" dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div style={{ marginTop: 54, paddingTop: 28, borderTop: `1px solid ${C.border}` }}>
+            <a href="/cases/" style={{ textDecoration: "none" }}>
+              <Button variant="outline" className="gap-2 rounded-md border-brand-black px-7 py-6 text-brand-black hover:bg-brand-black hover:text-white">
+                <ArrowLeft className="h-4 w-4" /> Усі кейси
               </Button>
             </a>
           </div>
-        </div>
+        </article>
       </section>
+    </div>
+  );
+}
+
+function Meta({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div style={{ display: "flex", gap: 12, alignItems: "center", background: "#fff", border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px" }}>
+      <span style={{ color: C.red, display: "inline-flex", flexShrink: 0 }}>{icon}</span>
+      <span style={{ minWidth: 0 }}>
+        <span style={{ display: "block", fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: C.muted, lineHeight: 1.1 }}>{label}</span>
+        <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: C.ink, marginTop: 4, lineHeight: 1.25 }}>{value}</span>
+      </span>
     </div>
   );
 }

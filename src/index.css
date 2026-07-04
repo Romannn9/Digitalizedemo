@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@300;400;500;600;700&family=Sofia+Sans+Condensed:wght@500;600;700;800&display=swap');
+/* Sofia Sans fonts are loaded via <link> in index.html (dev/SPA) and via
+   wp_enqueue_style in wp-theme/functions.php (WordPress) — a remote @import
+   here is stripped from the built CSS by Lightning CSS and never reaches prod. */
 
 @custom-variant dark (&:is(.dark *));
 
