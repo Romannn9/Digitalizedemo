@@ -121,6 +121,7 @@ export default function CaseStudy() {
         }
         @media (max-width: 820px) {
           .dz-case-hero-body { grid-template-columns: 1fr !important; gap: 34px !important; }
+          .dz-case-excerpt { display: none !important; }
           .dz-case-meta { grid-template-columns: 1fr; }
           .dz-case-stats { grid-template-columns: 1fr !important; }
         }
@@ -146,7 +147,7 @@ export default function CaseStudy() {
           <div className="dz-case-hero-body">
             <div>
             {excerpt ? (
-              <p style={{ fontSize: 20, lineHeight: 1.62, color: C.body, maxWidth: 680, margin: "0 0 30px" }}>{excerpt}</p>
+              <p className="dz-case-excerpt" style={{ fontSize: 20, lineHeight: 1.62, color: C.body, maxWidth: 680, margin: "0 0 30px" }}>{excerpt}</p>
             ) : null}
             <div className="dz-case-meta">
               {client ? <Meta icon={<Building2 size={18} />} label="Клієнт" value={decodeHtml(client)} /> : null}

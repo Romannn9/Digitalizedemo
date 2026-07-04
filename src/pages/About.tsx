@@ -3,6 +3,9 @@ import { Shield, Target, Zap } from "lucide-react";
 import { buildContactUrl } from "@/src/lib/contact";
 import { C, SANS, COND, wrap, eyebrowStyle, h2Style, Arrow, ThemeStyles } from "@/src/lib/theme";
 
+const olenaPhoto = new URL("../assets/team/olena-kravchenko.jpg", import.meta.url).href;
+const annaPhoto = new URL("../assets/team/anna-sokolova.jpg", import.meta.url).href;
+
 const ICON_MAP: Record<string, React.ReactNode> = {
   Shield: <Shield style={{ width: 26, height: 26, color: C.red }} />,
   Target: <Target style={{ width: 26, height: 26, color: C.red }} />,
@@ -23,9 +26,9 @@ const FB_VALUES = [
 
 const FB_TEAM = [
   { name: "Артем Волков",    role: "CEO & Founder",     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&h=1200&q=85" },
-  { name: "Олена Кравченко", role: "Head of Strategy",  image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&h=1200&q=85" },
+  { name: "Олена Кравченко", role: "Head of Strategy",  image: olenaPhoto },
   { name: "Максим Данилюк",  role: "Lead Media Buyer",  image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=900&h=1200&q=85" },
-  { name: "Анна Соколова",   role: "Creative Director", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=900&h=1200&q=85" },
+  { name: "Анна Соколова",   role: "Creative Director", image: annaPhoto },
 ];
 
 const FB_ACHIEVE = [
@@ -49,6 +52,12 @@ export default function About() {
   const officePhotos = rep('abt_office_photos', []);
   const teamBtnUrl   = buildContactUrl(f('abt_team_btn_url', '/contact/'), { topic: 'Питання по команді' });
   const ctaButtonUrl = buildContactUrl(f('abt_cta_button_url', '/contact/'), { topic: 'Співпраця з командою' });
+  const teamImage = (member: any, fallback: string) => {
+    const name = String(member.name || '').toLowerCase();
+    if (name.includes('олена') || name.includes('кравченко')) return olenaPhoto;
+    if (name.includes('анна') || name.includes('соколова')) return annaPhoto;
+    return member.image || fallback;
+  };
 
   return (
     <div style={{ background: C.bg, color: C.ink, fontFamily: SANS, overflowX: 'hidden', WebkitFontSmoothing: 'antialiased' }}>
@@ -121,7 +130,7 @@ export default function About() {
           {team.map((member: any, i: number) => (
             <div key={i} className="dz-card dz-work" style={{ background: '#fff', border: `1px solid ${C.border}`, borderRadius: 18, overflow: 'hidden', boxShadow: '0 18px 40px -28px rgba(60,45,30,0.35)' }}>
               <div style={{ position: 'relative', aspectRatio: '3 / 4', overflow: 'hidden' }}>
-                <img src={member.image || `https://i.pravatar.cc/400?img=${i + 11}`} alt={member.name} referrerPolicy="no-referrer" style={{ objectFit: 'cover', width: '100%', height: '100%', display: 'block', transition: 'transform .6s' }} />
+                <img src={teamImage(member, `https://i.pravatar.cc/400?img=${i + 11}`)} alt={member.name} referrerPolicy="no-referrer" style={{ objectFit: 'cover', width: '100%', height: '100%', display: 'block', transition: 'transform .6s' }} />
               </div>
               <div style={{ padding: '20px 22px' }}>
                 <h3 style={{ fontFamily: COND, fontSize: 20, fontWeight: 700, margin: 0, color: C.ink }}>{member.name}</h3>

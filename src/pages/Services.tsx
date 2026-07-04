@@ -3,6 +3,8 @@ import { Target, Search, Share2, LineChart } from "lucide-react";
 import { buildContactUrl } from "@/src/lib/contact";
 import { C, SANS, COND, wrap, eyebrowStyle, h2Style, Arrow, Check, ThemeStyles } from "@/src/lib/theme";
 
+const seoOptimizationImage = new URL("../assets/services/seo-optimization.png", import.meta.url).href;
+
 const ICON_MAP: Record<string, React.ReactNode> = {
   Target:    <Target    style={{ width: 26, height: 26, color: C.red }} />,
   Search:    <Search    style={{ width: 26, height: 26, color: C.red }} />,
@@ -14,7 +16,7 @@ const SERVICE_IMAGES = [
   'https://images.unsplash.com/photo-1611926653458-09294b3142bf?q=80&w=800&h=600&fit=crop',
   'https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?q=80&w=800&h=600&fit=crop',
   'https://images.unsplash.com/photo-1552581234-26160f608093?q=80&w=800&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1571677246347-5040e090d90c?q=80&w=800&h=600&fit=crop',
+  seoOptimizationImage,
 ];
 
 const FB_SERVICES = [
