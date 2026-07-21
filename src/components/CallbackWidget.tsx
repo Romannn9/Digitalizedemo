@@ -86,7 +86,7 @@ export default function CallbackWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.96 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="w-[min(calc(100vw-2.5rem),360px)] bg-white p-5 shadow-2xl ring-1 ring-black/10"
+            className="w-[min(calc(100vw-2.5rem),360px)] rounded-2xl bg-white p-5 shadow-2xl ring-1 ring-black/10"
             role="dialog"
             aria-modal="false"
             aria-labelledby="callback-widget-title"
@@ -117,7 +117,7 @@ export default function CallbackWidget() {
                 <Button
                   type="button"
                   onClick={() => setStatus("idle")}
-                  className="mt-4 w-full rounded-none bg-primary py-5 font-bold uppercase tracking-wider text-white hover:bg-primary/90"
+                  className="mt-4 w-full rounded-xl bg-primary py-5 font-bold uppercase tracking-wider text-white hover:bg-primary/90"
                 >
                   Надіслати ще раз
                 </Button>
@@ -139,7 +139,7 @@ export default function CallbackWidget() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ваше ім'я"
-                  className="h-12 rounded-none border-gray-300 focus:border-primary"
+                  className="h-12 rounded-xl border-gray-300 focus:border-primary"
                 />
                 <Input
                   required
@@ -147,7 +147,7 @@ export default function CallbackWidget() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+38 (0__) ___ __ __"
-                  className="h-12 rounded-none border-gray-300 focus:border-primary"
+                  className="h-12 rounded-xl border-gray-300 focus:border-primary"
                 />
 
                 {status === "error" && <p className="text-sm text-red-500">{errorMsg}</p>}
@@ -155,7 +155,7 @@ export default function CallbackWidget() {
                 <Button
                   type="submit"
                   disabled={status === "loading"}
-                  className="w-full rounded-none bg-primary py-6 font-bold uppercase tracking-wider text-white hover:bg-primary/90 disabled:opacity-60"
+                  className="w-full rounded-xl bg-primary py-6 font-bold uppercase tracking-wider text-white hover:bg-primary/90 disabled:opacity-60"
                 >
                   {status === "loading" ? "Надсилається..." : "Передзвоніть мені"}
                 </Button>

@@ -3,6 +3,9 @@ import { BarChart3, Target, Zap, Users, ShieldCheck } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 import { buildContactUrl } from "@/src/lib/contact";
 import { C, SANS, COND, wrap, eyebrowStyle, h2Style, Arrow, Check, ThemeStyles } from "@/src/lib/theme";
+import agencyStrategyImage from "@/src/assets/home-agency-strategy.jpg";
+import ecommerceCaseImage from "@/src/assets/home-case-ecommerce.jpg";
+import saasCaseImage from "@/src/assets/home-case-saas.jpg";
 
 const acf = typeof window !== 'undefined' ? (window.wpAcf ?? {}) : {};
 const f = (key: string, fallback: any) => {
@@ -68,12 +71,12 @@ export default function Home() {
   // Cases
   const casesTitle = f('cases_title', 'Результати, які говорять самі за себе');
   const cases = rep('cases', [
-    { client: 'E-commerce Brand', result: 'ROI 450%', desc: 'Збільшили продажі в 3 рази за 6 місяців через таргет та ретаргетинг.', image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800&h=600&fit=crop' },
-    { client: 'SaaS Platform',    result: 'CPA -40%', desc: 'Знизили вартість залучення клієнта завдяки оптимізації Google Ads.',   image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&h=600&fit=crop' },
+    { client: 'E-commerce Brand', result: 'ROI 450%', desc: 'Збільшили продажі в 3 рази за 6 місяців через таргет та ретаргетинг.', image: ecommerceCaseImage },
+    { client: 'SaaS Platform',    result: 'CPA -40%', desc: 'Знизили вартість залучення клієнта завдяки оптимізації Google Ads.',   image: saasCaseImage },
   ]);
 
   // About
-  const aboutImage = f('about_image', 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=600&h=800&fit=crop');
+  const aboutImage = f('about_image', agencyStrategyImage);
   const aboutYears = f('about_years', 8);
   const aboutTitle = f('about_title', 'Ми не просто агенція. Ми ваш партнер у рості.');
   const aboutText  = f('about_text',  "Digitalize народилася з ідеї, що маркетинг має бути прозорим та вимірюваним. Ми об'єднали кращих аналітиків та креативників, щоб створювати кампанії, які неможливо ігнорувати.");
