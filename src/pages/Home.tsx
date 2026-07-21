@@ -73,10 +73,18 @@ export default function Home() {
   const cases = rep('cases', [
     { client: 'E-commerce Brand', result: 'ROI 450%', desc: 'Збільшили продажі в 3 рази за 6 місяців через таргет та ретаргетинг.', image: ecommerceCaseImage },
     { client: 'SaaS Platform',    result: 'CPA -40%', desc: 'Знизили вартість залучення клієнта завдяки оптимізації Google Ads.',   image: saasCaseImage },
-  ]);
+  ]).map((item: any, index: number) => {
+    const image = String(item.image || '');
+    if (image.includes('photo-1556742049-0cfed4f6a45d')) return { ...item, image: ecommerceCaseImage };
+    if (image.includes('photo-1460925895917-afdab827c52f')) return { ...item, image: saasCaseImage };
+    if (!image && index === 0) return { ...item, image: ecommerceCaseImage };
+    if (!image && index === 1) return { ...item, image: saasCaseImage };
+    return item;
+  });
 
   // About
-  const aboutImage = f('about_image', agencyStrategyImage);
+  const savedAboutImage = String(f('about_image', agencyStrategyImage));
+  const aboutImage = savedAboutImage.includes('photo-1552664730-d307ca884978') ? agencyStrategyImage : savedAboutImage;
   const aboutYears = f('about_years', 8);
   const aboutTitle = f('about_title', 'Ми не просто агенція. Ми ваш партнер у рості.');
   const aboutText  = f('about_text',  "Digitalize народилася з ідеї, що маркетинг має бути прозорим та вимірюваним. Ми об'єднали кращих аналітиків та креативників, щоб створювати кампанії, які неможливо ігнорувати.");
