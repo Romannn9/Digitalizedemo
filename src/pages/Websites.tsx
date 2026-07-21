@@ -65,6 +65,8 @@ export default function Websites() {
 
   const worksTitle = f('web_works_title', 'Проєкти, які приносять результат');
   const projects: WebProject[] = rep('web_projects', [
+    { title: 'HRTop', type: 'landing', result: '', tags: 'Лендинг · HR-платформа', image: `${BASE}portfolio/hrtop.jpg`, url: 'https://hrtop.pages.dev/' },
+    { title: 'Compice', type: 'shop', result: '', tags: 'Інтернет-магазин · Ноутбуки', image: `${BASE}portfolio/compice.jpg`, url: 'https://compice.in.ua/' },
     { title: 'Edmarz Electric LLC', type: 'corporate', result: '', tags: 'Корпоративний сайт · США (PA/MD/DE)', image: `${BASE}portfolio/edmarz-electric.jpg`, url: 'https://edmarzelectric.com/' },
     { title: 'Сервіс Переїзд+', type: 'landing', result: '', tags: 'Лендинг · Дніпро', image: `${BASE}portfolio/servis-pereizd.jpg`, url: 'https://servispereezdplus.dp.ua/' },
     { title: 'Глобал Імпорт', type: 'landing', result: '', tags: 'Лендинг · Авто-імпорт США/ЄС', image: `${BASE}portfolio/global-import.jpg`, url: 'https://global-import.com.ua/' },
